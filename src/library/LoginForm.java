@@ -5,6 +5,18 @@
  */
 package library;
 
+import admin.admindashboard;
+import config.Session;
+import config.dbConnector;
+import config.passwordHasher;
+import java.security.NoSuchAlgorithmException;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import user.userdashboard;
+
 /**
  *
  * @author Hp
@@ -17,7 +29,47 @@ public class LoginForm extends javax.swing.JFrame {
     public LoginForm() {
         initComponents();
     }
+    
+    static String status;
+    static String type;
+   
+    
+    private boolean loginAcc(String username, String password) {
+    dbConnector connector = new dbConnector();
+    
+    try {
+       String query = "SELECT * FROM tbl WHERE u_username = '" + username + "'";
+        ResultSet resultSet = connector.getData(query);
+        
+        if (resultSet.next()) {
+            String hashedPassFromDB = resultSet.getString("u_password");
+            String hashedPass = passwordHasher.hashPassword(password); 
+            if (hashedPass.equals(hashedPassFromDB)) {
+                status = resultSet.getString("u_status");
+                type = resultSet.getString("u_type");
+                Session sess = Session.getInstance();
+                sess.setId(resultSet.getInt("u_id"));
+                sess.setFname(resultSet.getString("u_fname"));
+                sess.setLname(resultSet.getString("u_lname"));
+                sess.setEmail(resultSet.getString("u_email"));
+                sess.setUsername(resultSet.getString("u_username"));
+                sess.setType(resultSet.getString("u_type"));
+                sess.setStatus(resultSet.getString("u_status"));
 
+                return true;
+            }else{
+                System.out.println("Password Don't Match!");
+                return false;
+            }
+        }else{
+          return false;  
+        }
+        
+    } catch (SQLException | NoSuchAlgorithmException ex) {
+        JOptionPane.showMessageDialog(null, "Database error: " + ex.getMessage());
+        return false;
+    }
+}
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -27,45 +79,106 @@ public class LoginForm extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jPanel1 = new javax.swing.JPanel();
-        jLabel4 = new javax.swing.JLabel();
-        username = new javax.swing.JTextField();
-        password = new javax.swing.JPasswordField();
+        jPanel2 = new javax.swing.JPanel();
         jLabel3 = new javax.swing.JLabel();
-        login = new javax.swing.JButton();
-        register = new javax.swing.JButton();
         jLabel2 = new javax.swing.JLabel();
+        jLabel15 = new javax.swing.JLabel();
+        jPanel5 = new javax.swing.JPanel();
+        jLabel5 = new javax.swing.JLabel();
+        jLabel6 = new javax.swing.JLabel();
+        jLabel7 = new javax.swing.JLabel();
+        jSeparator4 = new javax.swing.JSeparator();
+        jSeparator5 = new javax.swing.JSeparator();
+        ps = new javax.swing.JPasswordField();
+        us = new javax.swing.JTextField();
+        register = new javax.swing.JButton();
+        login = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
+        check = new javax.swing.JCheckBox();
+        jLabel4 = new javax.swing.JLabel();
+        jLabel8 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setBackground(new java.awt.Color(255, 255, 255));
+        setMinimumSize(new java.awt.Dimension(910, 540));
+        setPreferredSize(new java.awt.Dimension(950, 560));
+        getContentPane().setLayout(null);
 
-        jPanel1.setLayout(null);
+        jPanel2.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel2.setLayout(null);
 
-        jLabel4.setFont(new java.awt.Font("Arial", 0, 16)); // NOI18N
-        jLabel4.setText("Password:");
-        jPanel1.add(jLabel4);
-        jLabel4.setBounds(60, 230, 74, 19);
-        jPanel1.add(username);
-        username.setBounds(180, 170, 160, 30);
-        jPanel1.add(password);
-        password.setBounds(180, 220, 160, 30);
+        jLabel3.setBackground(new java.awt.Color(255, 255, 255));
+        jLabel3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/login_logo.jpg"))); // NOI18N
+        jPanel2.add(jLabel3);
+        jLabel3.setBounds(10, 190, 500, 300);
 
-        jLabel3.setFont(new java.awt.Font("Arial", 1, 40)); // NOI18N
-        jLabel3.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel3.setText("LIBRARY MANAGEMENT SYSTEM");
-        jPanel1.add(jLabel3);
-        jLabel3.setBounds(80, 10, 647, 47);
+        jLabel2.setFont(new java.awt.Font("Tw Cen MT Condensed", 1, 24)); // NOI18N
+        jLabel2.setText("Welcome to ");
+        jPanel2.add(jLabel2);
+        jLabel2.setBounds(190, 50, 103, 26);
 
-        login.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
-        login.setText("Login");
-        login.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                loginActionPerformed(evt);
+        jLabel15.setFont(new java.awt.Font("Tw Cen MT Condensed Extra Bold", 0, 48)); // NOI18N
+        jLabel15.setForeground(new java.awt.Color(204, 0, 0));
+        jLabel15.setText("LIBRARY");
+        jPanel2.add(jLabel15);
+        jLabel15.setBounds(170, 90, 203, 53);
+
+        getContentPane().add(jPanel2);
+        jPanel2.setBounds(0, 0, 550, 560);
+
+        jPanel5.setBackground(new java.awt.Color(153, 0, 0));
+        jPanel5.setForeground(new java.awt.Color(153, 0, 0));
+        jPanel5.setPreferredSize(new java.awt.Dimension(410, 560));
+        jPanel5.setLayout(null);
+
+        jLabel5.setFont(new java.awt.Font("Century Gothic", 0, 20)); // NOI18N
+        jLabel5.setText("Sign in or Register");
+        jPanel5.add(jLabel5);
+        jLabel5.setBounds(110, 80, 170, 26);
+
+        jLabel6.setFont(new java.awt.Font("Century Gothic", 1, 18)); // NOI18N
+        jLabel6.setText("USERNAME");
+        jPanel5.add(jLabel6);
+        jLabel6.setBounds(110, 150, 110, 23);
+
+        jLabel7.setFont(new java.awt.Font("Century Gothic", 1, 18)); // NOI18N
+        jLabel7.setText("PASSWORD");
+        jPanel5.add(jLabel7);
+        jLabel7.setBounds(110, 230, 100, 23);
+
+        jSeparator4.setForeground(new java.awt.Color(255, 255, 255));
+        jPanel5.add(jSeparator4);
+        jSeparator4.setBounds(110, 210, 170, 10);
+
+        jSeparator5.setForeground(new java.awt.Color(255, 255, 255));
+        jPanel5.add(jSeparator5);
+        jSeparator5.setBounds(110, 290, 170, 10);
+
+        ps.setBackground(new java.awt.Color(153, 0, 0));
+        ps.setText("jPasswordField1");
+        ps.setBorder(null);
+        ps.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusGained(java.awt.event.FocusEvent evt) {
+                psFocusGained(evt);
             }
         });
-        jPanel1.add(login);
-        login.setBounds(180, 270, 71, 25);
+        jPanel5.add(ps);
+        ps.setBounds(110, 260, 170, 30);
 
+        us.setBackground(new java.awt.Color(153, 0, 0));
+        us.setFont(new java.awt.Font("Century Gothic", 0, 12)); // NOI18N
+        us.setText("Enter you username");
+        us.setBorder(null);
+        us.setDisabledTextColor(new java.awt.Color(204, 204, 204));
+        us.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                usMouseClicked(evt);
+            }
+        });
+        jPanel5.add(us);
+        us.setBounds(110, 180, 170, 30);
+
+        register.setBackground(new java.awt.Color(153, 0, 0));
         register.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
         register.setText("Register");
         register.addActionListener(new java.awt.event.ActionListener() {
@@ -73,44 +186,104 @@ public class LoginForm extends javax.swing.JFrame {
                 registerActionPerformed(evt);
             }
         });
-        jPanel1.add(register);
-        register.setBounds(260, 270, 89, 25);
+        jPanel5.add(register);
+        register.setBounds(200, 390, 100, 30);
 
-        jLabel2.setFont(new java.awt.Font("Arial", 0, 16)); // NOI18N
-        jLabel2.setText("Username:");
-        jPanel1.add(jLabel2);
-        jLabel2.setBounds(60, 180, 76, 19);
+        login.setBackground(new java.awt.Color(153, 0, 0));
+        login.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+        login.setText("Login");
+        login.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                loginActionPerformed(evt);
+            }
+        });
+        jPanel5.add(login);
+        login.setBounds(70, 390, 100, 30);
 
-        jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/Pink Orange Colorful Book Club Presentation (2).png"))); // NOI18N
-        jPanel1.add(jLabel1);
-        jLabel1.setBounds(0, 0, 790, 410);
+        jLabel1.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
+        jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel1.setText("or");
+        jPanel5.add(jLabel1);
+        jLabel1.setBounds(170, 394, 30, 22);
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
-        getContentPane().setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 789, Short.MAX_VALUE)
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 410, Short.MAX_VALUE)
-        );
+        check.setBackground(new java.awt.Color(153, 0, 0));
+        check.setFont(new java.awt.Font("Tahoma", 2, 11)); // NOI18N
+        check.setText("Show Password");
+        check.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                checkActionPerformed(evt);
+            }
+        });
+        jPanel5.add(check);
+        check.setBounds(180, 300, 100, 23);
+
+        jLabel4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/icons8_Account_50px.png"))); // NOI18N
+        jPanel5.add(jLabel4);
+        jLabel4.setBounds(50, 160, 50, 60);
+
+        jLabel8.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/icons8_Secure_50px.png"))); // NOI18N
+        jPanel5.add(jLabel8);
+        jLabel8.setBounds(50, 240, 50, 50);
+
+        getContentPane().add(jPanel5);
+        jPanel5.setBounds(550, 0, 410, 560);
 
         pack();
+        setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
     private void loginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loginActionPerformed
-     
+
+        if(loginAcc(us.getText(),ps.getText())){
+            if(!status.equals("Active")){
+                JOptionPane.showMessageDialog(null, "In-Active Account, Contact the Admin!");
+            }else{
+                if(type.equals("Admin")){
+                    JOptionPane.showMessageDialog(null, "Login SuccessFully!");
+                    admindashboard dash = new admindashboard();
+                    dash.setVisible(true);
+                    this.dispose();
+                }else if (type.equals("User")){
+                    JOptionPane.showMessageDialog(null, "Login SuccessFully!");
+                    userdashboard ash = new userdashboard();
+                    ash.setVisible(true);
+                    this.dispose();
+                }else{
+                    JOptionPane.showMessageDialog(null, "No Account type Found, Contact the Admin!");
+                }
+            }
+        }else{
+            JOptionPane.showMessageDialog(null, "Invalid Account!");
+        }
     }//GEN-LAST:event_loginActionPerformed
 
     private void registerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_registerActionPerformed
         registerForm DashboardFrame = new registerForm();
         DashboardFrame.setVisible(true);
-        DashboardFrame.pack();
-        DashboardFrame.setLocationRelativeTo(null);
         this.dispose();
     }//GEN-LAST:event_registerActionPerformed
 
+    private void usMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_usMouseClicked
+        
+        us.setText("");
+    }//GEN-LAST:event_usMouseClicked
+
+    private void psFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_psFocusGained
+        
+        ps.setText("");
+    }//GEN-LAST:event_psFocusGained
+
+    private void checkActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkActionPerformed
+       if(check.isSelected()){
+            ps.setEchoChar((char)0);
+        }else{
+            ps.setEchoChar('*');
+        }
+    }//GEN-LAST:event_checkActionPerformed
+
+   
+    
+     
     /**
      * @param args the command line arguments
      */
@@ -147,14 +320,23 @@ public class LoginForm extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JCheckBox check;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel15;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
-    private javax.swing.JPanel jPanel1;
+    private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel7;
+    private javax.swing.JLabel jLabel8;
+    private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel5;
+    private javax.swing.JSeparator jSeparator4;
+    private javax.swing.JSeparator jSeparator5;
     private javax.swing.JButton login;
-    private javax.swing.JPasswordField password;
+    private javax.swing.JPasswordField ps;
     private javax.swing.JButton register;
-    private javax.swing.JTextField username;
+    private javax.swing.JTextField us;
     // End of variables declaration//GEN-END:variables
 }
