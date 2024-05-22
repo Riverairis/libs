@@ -5,14 +5,17 @@
  */
 package user;
 
-import admin.*;
 import config.Session;
 import config.display;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
@@ -30,81 +33,61 @@ public class returnbook extends javax.swing.JFrame {
      */
     public returnbook() {
         initComponents();
+        setTitle("LIBRARY");
         displayData();
     }
     
-     public void displayData() {
+    public void displayData() {
     try {
         Session sess = Session.getInstance();
         int userID = sess.getId();
-
         Connection connection = display.getConnection();
-        if (connection != null) {
-            // Select all attributes from the books table
-            String query = "SELECT * FROM books";
-            ResultSet rsBooks = connection.createStatement().executeQuery(query);
-
-            // Create a map to store book status
-            Map<String, String> bookStatusMap = new HashMap<>();
-
-            // Initialize book status from the books table
-            while (rsBooks.next()) {
-                String bookID = rsBooks.getString("book_id");
-                String status = rsBooks.getInt("Quantity") > 0 ? "Available" : "Out of Stock";
-                bookStatusMap.put(bookID, status);
-            }
-
-            rsBooks.close();
-
-            // Select the borrowed books for the logged-in user
-            query = "SELECT book_id FROM borrowings WHERE u_id = ?";
-            PreparedStatement pstmtBorrowed = connection.prepareStatement(query);
-            pstmtBorrowed.setInt(1, userID);
-            ResultSet rsBorrowed = pstmtBorrowed.executeQuery();
-
-            // Update book status from the borrowings table
-            while (rsBorrowed.next()) {
-                String bookID = rsBorrowed.getString("book_id");
-                bookStatusMap.put(bookID, "Borrowed");
-            }
-
-            rsBorrowed.close();
-            pstmtBorrowed.close();
-
-            // Populate table with book details and statuses
-            DefaultTableModel model = new DefaultTableModel();
-            model.addColumn("Book ID");
-            model.addColumn("Book Name");
-            model.addColumn("Author");
-            model.addColumn("Status");
-
-            for (Map.Entry<String, String> entry : bookStatusMap.entrySet()) {
-                String bookID = entry.getKey();
-                String status = entry.getValue();
-
-                query = "SELECT * FROM books WHERE book_id = ?";
-                PreparedStatement pstmtBookDetails = connection.prepareStatement(query);
-                pstmtBookDetails.setString(1, bookID);
-                ResultSet rsBookDetails = pstmtBookDetails.executeQuery();
-
-                if (rsBookDetails.next()) {
-                    Object[] rowData = new Object[4];
-                    rowData[0] = rsBookDetails.getString("book_id");
-                    rowData[1] = rsBookDetails.getString("book_name");
-                    rowData[2] = rsBookDetails.getString("author");
-                    rowData[3] = status;
-                    model.addRow(rowData);
-                }
-
-                rsBookDetails.close();
-                pstmtBookDetails.close();
-            }
-
-            table.setModel(model);
-
-        } else {
+        if (connection == null) {
             JOptionPane.showMessageDialog(this, "Failed to establish a connection to the database.");
+            return;
         }
+
+        String query = "SELECT book_id, book_name, author, Quantity FROM books ORDER BY book_id";
+        ResultSet rsBooks = connection.createStatement().executeQuery(query);
+
+        Map<String, String> bookStatusMap = new HashMap<>();
+        while (rsBooks.next()) {
+            String bookID = rsBooks.getString("book_id");
+            bookStatusMap.put(bookID, rsBooks.getInt("Quantity") > 0 ? "Available" : "Out of Stock");
+        }
+        rsBooks.close();
+
+        query = "SELECT book_id FROM borrowings WHERE u_id = ?";
+        PreparedStatement pstmtBorrowed = connection.prepareStatement(query);
+        pstmtBorrowed.setInt(1, userID);
+        ResultSet rsBorrowed = pstmtBorrowed.executeQuery();
+        while (rsBorrowed.next()) {
+            bookStatusMap.put(rsBorrowed.getString("book_id"), "Borrowed");
+        }
+        rsBorrowed.close();
+        pstmtBorrowed.close();
+
+        DefaultTableModel model = new DefaultTableModel(new String[]{"Book ID", "Book Name", "Author", "Status"}, 0);
+        List<String> sortedBookIDs = new ArrayList<>(bookStatusMap.keySet());
+        Collections.sort(sortedBookIDs, Comparator.comparingInt(Integer::parseInt));
+
+        PreparedStatement pstmtBookDetails = connection.prepareStatement("SELECT * FROM books WHERE book_id = ?");
+        for (String bookID : sortedBookIDs) {
+            pstmtBookDetails.setString(1, bookID);
+            ResultSet rsBookDetails = pstmtBookDetails.executeQuery();
+            if (rsBookDetails.next()) {
+                model.addRow(new Object[]{
+                    rsBookDetails.getString("book_id"),
+                    rsBookDetails.getString("book_name"),
+                    rsBookDetails.getString("author"),
+                    bookStatusMap.get(bookID)
+                });
+            }
+            rsBookDetails.close();
+        }
+        pstmtBookDetails.close();
+
+        table.setModel(model);
     } catch (SQLException ex) {
         JOptionPane.showMessageDialog(this, "Error fetching data from database: " + ex.getMessage());
         ex.printStackTrace();
@@ -268,55 +251,55 @@ public class returnbook extends javax.swing.JFrame {
 
     private void turnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_turnActionPerformed
     try {
-    String bookID = ret.getText().trim();
+            String bookID = ret.getText().trim();
+            if (bookID.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Please enter a book ID.");
+                return;
+            }
 
-    if (bookID.isEmpty()) {
-        JOptionPane.showMessageDialog(this, "Please enter a book ID.");
-        return;
-    }
+            Connection connection = display.getConnection();
+            if (connection == null) {
+                JOptionPane.showMessageDialog(this, "Failed to establish a connection to the database.");
+                return;
+            }
 
-    Connection connection = display.getConnection();
-    if (connection != null) {
-        // Check if the book is borrowed
-        PreparedStatement checkStmt = connection.prepareStatement("SELECT * FROM borrowings WHERE book_id = ?");
-        checkStmt.setString(1, bookID);
-        ResultSet rs = checkStmt.executeQuery();
+            Session sess = Session.getInstance();
+            int userID = sess.getId();
 
-        if (rs.next()) {
-            // Update the status of the book to "Available" in the books table
-            PreparedStatement updateBookStatusStmt = connection.prepareStatement("UPDATE books SET Status = 'Available', Quantity = Quantity + 1 WHERE book_id = ?");
-            updateBookStatusStmt.setString(1, bookID);
-            int rowsAffected = updateBookStatusStmt.executeUpdate();
+            PreparedStatement checkStmt = connection.prepareStatement("SELECT * FROM borrowings WHERE book_id = ? AND u_id = ?");
+            checkStmt.setString(1, bookID);
+            checkStmt.setInt(2, userID);
+            ResultSet rs = checkStmt.executeQuery();
 
-            if (rowsAffected > 0) {
-                // Delete the borrowing entry
-                PreparedStatement deleteBorrowingStmt = connection.prepareStatement("DELETE FROM borrowings WHERE book_id = ?");
-                deleteBorrowingStmt.setString(1, bookID);
-                int deletedRows = deleteBorrowingStmt.executeUpdate();
+            if (rs.next() && "Borrowed".equals(rs.getString("status"))) {
+                PreparedStatement deleteStmt = connection.prepareStatement("DELETE FROM borrowings WHERE book_id = ? AND u_id = ?");
+                deleteStmt.setString(1, bookID);
+                deleteStmt.setInt(2, userID);
 
-                if (deletedRows > 0) {
+                PreparedStatement updateStmt = connection.prepareStatement("UPDATE books SET Quantity = Quantity + 1 WHERE book_id = ?");
+                updateStmt.setString(1, bookID);
+
+                // Execute the statements
+                if (deleteStmt.executeUpdate() > 0 && updateStmt.executeUpdate() > 0) {
                     JOptionPane.showMessageDialog(this, "Book returned successfully.");
                     displayData();
                     ret.setText("");
                 } else {
                     JOptionPane.showMessageDialog(this, "Failed to return book.");
                 }
-            } else {
-                JOptionPane.showMessageDialog(this, "Failed to update book status.");
-            }
-        } else {
-            JOptionPane.showMessageDialog(this, "Book with ID " + bookID + " is not borrowed.");
-        }
 
-        checkStmt.close();
-        rs.close();
-    } else {
-        JOptionPane.showMessageDialog(this, "Failed to establish a connection to the database.");
-    }
-} catch (SQLException ex) {
-    JOptionPane.showMessageDialog(this, "Error returning book: " + ex.getMessage());
-    ex.printStackTrace();
-}
+                deleteStmt.close();
+                updateStmt.close();
+            } else {
+                JOptionPane.showMessageDialog(this, "No borrowed record found for the specified book ID and user.");
+            }
+
+            rs.close();
+            checkStmt.close();
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(this, "Error returning book: " + ex.getMessage());
+            ex.printStackTrace();
+        }
     }//GEN-LAST:event_turnActionPerformed
 
     private void label2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_label2MouseClicked

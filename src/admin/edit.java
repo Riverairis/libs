@@ -12,7 +12,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import javax.swing.JOptionPane;
-import javax.swing.table.TableModel;
 import library.LoginForm;
 import net.proteanit.sql.DbUtils;
 
@@ -27,17 +26,20 @@ public class edit extends javax.swing.JFrame {
      */
     public edit() {
         initComponents();
+        setTitle("LIBRARY");
           displayData();
     }
     
-    public void displayData() {
+   public void displayData() {
     try {
         Connection connection = display.getConnection();
         if (connection != null) {
-            
-            
-            
-            String query = "SELECT book_id, book_name, author, Publisher, SUM(quantity) AS total_quantity "
+            String query = "SELECT book_id, book_name, author, Publisher, "
+                         + "CASE "
+                         + "    WHEN SUM(quantity) = 0 THEN 'Out of stock' "
+                         + "    ELSE 'Available' "
+                         + "END AS Status, "
+                         + "SUM(quantity) AS quantity "
                          + "FROM books "
                          + "GROUP BY book_id, book_name, author, Publisher";
             PreparedStatement pstmt = connection.prepareStatement(query);
@@ -84,7 +86,7 @@ public class edit extends javax.swing.JFrame {
         jLabel4 = new javax.swing.JLabel();
         quan = new javax.swing.JTextField();
         jLabel6 = new javax.swing.JLabel();
-        stat = new javax.swing.JTextField();
+        stat = new javax.swing.JComboBox<>();
         jScrollPane1 = new javax.swing.JScrollPane();
         table = new javax.swing.JTable();
         searchs = new javax.swing.JTextField();
@@ -190,6 +192,7 @@ public class edit extends javax.swing.JFrame {
         jLabel3.setBounds(40, 260, 90, 30);
 
         pub.setBackground(new java.awt.Color(51, 51, 51));
+        pub.setForeground(new java.awt.Color(255, 255, 255));
         jPanel4.add(pub);
         pub.setBounds(40, 290, 210, 30);
 
@@ -206,12 +209,11 @@ public class edit extends javax.swing.JFrame {
 
         jLabel6.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         jLabel6.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel6.setText("Status (Available/Pending)");
+        jLabel6.setText("Status");
         jPanel4.add(jLabel6);
-        jLabel6.setBounds(40, 380, 160, 30);
+        jLabel6.setBounds(40, 380, 200, 30);
 
-        stat.setBackground(new java.awt.Color(51, 51, 51));
-        stat.setForeground(new java.awt.Color(255, 255, 255));
+        stat.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Available", "Out of Stock" }));
         jPanel4.add(stat);
         stat.setBounds(40, 410, 210, 30);
 
@@ -277,49 +279,52 @@ public class edit extends javax.swing.JFrame {
         String bookName = name.getText().trim();
         String authorName = author.getText().trim();
         String quantity = quan.getText().trim();
-        String status = stat.getText().trim();
-         String publisher = pub.getText().trim();
+        String status = (String) stat.getSelectedItem();
+        String publisher = pub.getText().trim();
     
-    if (bookID.isEmpty() || bookName.isEmpty() || authorName.isEmpty() || quantity.isEmpty() || status.isEmpty() || publisher.isEmpty()) {
-        JOptionPane.showMessageDialog(this, "Please fill in all fields.");
-        return;
-    }
-    
-    try {
-        Connection connection = display.getConnection();
-        if (connection != null) {
-            
-            String updateQuery = "UPDATE books SET book_name = ?, author = ?, Publisher = ?, quantity = ? WHERE book_id = ?";
-            PreparedStatement pstmt = connection.prepareStatement(updateQuery);
-            pstmt.setString(1, bookName);
-            pstmt.setString(2, authorName);
-            pstmt.setString(3, publisher);
-            pstmt.setString(4, quantity);
-           
-            
-            pstmt.setString(5, bookID);
-            
-            int rowsAffected = pstmt.executeUpdate();
-            if (rowsAffected > 0) {
-                JOptionPane.showMessageDialog(this, "Book information updated successfully.");
-                displayData();
-                
-                id.setText("");
-                name.setText("");
-                author.setText("");
-                quan.setText("");
-                stat.setText("");
-                pub.setText("");
-            } else {
-                JOptionPane.showMessageDialog(this, "Failed to update book information. Book ID not found.");
-            }
-        } else {
-            JOptionPane.showMessageDialog(this, "Failed to establish a connection to the database.");
+        if (bookID.isEmpty() || bookName.isEmpty() || authorName.isEmpty() || quantity.isEmpty() || status.isEmpty() || publisher.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please fill in all fields.");
+            return;
         }
-    } catch (SQLException ex) {
-        JOptionPane.showMessageDialog(this, "Error updating book information: " + ex.getMessage());
-        ex.printStackTrace();
-    }
+
+        if (!quantity.matches("\\d+")) {
+                JOptionPane.showMessageDialog(this, "Quantity must be a valid number.");        
+                quan.setText("");
+                   return;
+            }
+        try {
+            Connection connection = display.getConnection();
+            if (connection != null) {
+
+                String updateQuery = "UPDATE books SET book_name = ?, author = ?, Publisher = ?, quantity = ? WHERE book_id = ?";
+                PreparedStatement pstmt = connection.prepareStatement(updateQuery);
+                pstmt.setString(1, bookName);
+                pstmt.setString(2, authorName);
+                pstmt.setString(3, publisher);
+                pstmt.setString(4, quantity);
+                pstmt.setString(5, bookID);
+
+                int rowsAffected = pstmt.executeUpdate();
+                if (rowsAffected > 0) {
+                    JOptionPane.showMessageDialog(this, "Book information updated successfully.");
+                    displayData();
+
+                    id.setText("");
+                    name.setText("");
+                    author.setText("");
+                    quan.setText("");
+                    stat.setSelectedIndex(0);
+                    pub.setText("");
+                } else {
+                    JOptionPane.showMessageDialog(this, "Failed to update book information. Book ID not found.");
+                }
+            } else {
+                JOptionPane.showMessageDialog(this, "Failed to establish a connection to the database.");
+            }
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(this, "Error updating book information: " + ex.getMessage());
+            ex.printStackTrace();
+        }
     }//GEN-LAST:event_updateActionPerformed
 
     private void jLabel9MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel9MouseClicked
@@ -447,7 +452,7 @@ public class edit extends javax.swing.JFrame {
     public javax.swing.JTextField pub;
     public javax.swing.JTextField quan;
     private javax.swing.JTextField searchs;
-    public javax.swing.JTextField stat;
+    public javax.swing.JComboBox<String> stat;
     private javax.swing.JTable table;
     private javax.swing.JButton update;
     // End of variables declaration//GEN-END:variables

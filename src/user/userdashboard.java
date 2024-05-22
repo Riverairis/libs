@@ -7,6 +7,7 @@ package user;
 
 import config.Session;
 import config.display;
+import java.awt.Color;
 import java.sql.SQLException;
 import javax.swing.JOptionPane;
 import library.LoginForm;
@@ -22,6 +23,7 @@ public class userdashboard extends javax.swing.JFrame {
      */
     public userdashboard() {
         initComponents();
+        setTitle("LIBRARY");
     }
     
     
@@ -39,15 +41,6 @@ public class userdashboard extends javax.swing.JFrame {
         label2 = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
         jLabel7 = new javax.swing.JLabel();
-        jPanel2 = new javax.swing.JPanel();
-        jButton3 = new javax.swing.JButton();
-        jLabel1 = new javax.swing.JLabel();
-        jLabel2 = new javax.swing.JLabel();
-        jLabel3 = new javax.swing.JLabel();
-        jLabel4 = new javax.swing.JLabel();
-        jPanel6 = new javax.swing.JPanel();
-        jLabel10 = new javax.swing.JLabel();
-        jLabel12 = new javax.swing.JLabel();
         jLabel6 = new javax.swing.JLabel();
         jPanel4 = new javax.swing.JPanel();
         jPanel7 = new javax.swing.JPanel();
@@ -57,6 +50,15 @@ public class userdashboard extends javax.swing.JFrame {
         jPanel8 = new javax.swing.JPanel();
         books = new javax.swing.JLabel();
         jLabel11 = new javax.swing.JLabel();
+        jPanel2 = new javax.swing.JPanel();
+        jButton3 = new javax.swing.JButton();
+        jPanel6 = new javax.swing.JPanel();
+        jLabel10 = new javax.swing.JLabel();
+        jLabel1 = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
+        jLabel4 = new javax.swing.JLabel();
+        jLabel12 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         addWindowListener(new java.awt.event.WindowAdapter() {
@@ -92,6 +94,78 @@ public class userdashboard extends javax.swing.JFrame {
         jPanel1.add(jPanel3);
         jPanel3.setBounds(0, 0, 910, 70);
 
+        jLabel6.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        jLabel6.setText("View Profile");
+        jPanel1.add(jLabel6);
+        jLabel6.setBounds(610, 300, 110, 20);
+
+        jPanel4.setBackground(new java.awt.Color(153, 0, 0));
+        jPanel4.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jPanel4MouseClicked(evt);
+            }
+        });
+        jPanel4.setLayout(null);
+
+        jPanel7.setBackground(new java.awt.Color(51, 51, 51));
+
+        javax.swing.GroupLayout jPanel7Layout = new javax.swing.GroupLayout(jPanel7);
+        jPanel7.setLayout(jPanel7Layout);
+        jPanel7Layout.setHorizontalGroup(
+            jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 230, Short.MAX_VALUE)
+        );
+        jPanel7Layout.setVerticalGroup(
+            jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 30, Short.MAX_VALUE)
+        );
+
+        jPanel4.add(jPanel7);
+        jPanel7.setBounds(0, 0, 230, 30);
+
+        jLabel8.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/profile.png"))); // NOI18N
+        jPanel4.add(jLabel8);
+        jLabel8.setBounds(90, 60, 50, 60);
+
+        jPanel1.add(jPanel4);
+        jPanel4.setBounds(610, 330, 230, 160);
+
+        jLabel9.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/cover2.png"))); // NOI18N
+        jPanel1.add(jLabel9);
+        jLabel9.setBounds(250, 70, 660, 220);
+
+        jPanel5.setBackground(new java.awt.Color(153, 0, 0));
+        jPanel5.setLayout(null);
+
+        jPanel8.setBackground(new java.awt.Color(51, 51, 51));
+
+        javax.swing.GroupLayout jPanel8Layout = new javax.swing.GroupLayout(jPanel8);
+        jPanel8.setLayout(jPanel8Layout);
+        jPanel8Layout.setHorizontalGroup(
+            jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 230, Short.MAX_VALUE)
+        );
+        jPanel8Layout.setVerticalGroup(
+            jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 30, Short.MAX_VALUE)
+        );
+
+        jPanel5.add(jPanel8);
+        jPanel8.setBounds(0, 0, 230, 30);
+
+        books.setFont(new java.awt.Font("Tahoma", 1, 24)); // NOI18N
+        books.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/icons8_Book_Shelf_50px.png"))); // NOI18N
+        jPanel5.add(books);
+        books.setBounds(60, 60, 130, 50);
+
+        jPanel1.add(jPanel5);
+        jPanel5.setBounds(330, 330, 230, 160);
+
+        jLabel11.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        jLabel11.setText("No. of Books");
+        jPanel1.add(jLabel11);
+        jLabel11.setBounds(330, 300, 110, 20);
+
         jPanel2.setBackground(new java.awt.Color(51, 51, 51));
         jPanel2.setLayout(null);
 
@@ -104,6 +178,18 @@ public class userdashboard extends javax.swing.JFrame {
         });
         jPanel2.add(jButton3);
         jButton3.setBounds(70, 470, 100, 23);
+
+        jPanel6.setBackground(new java.awt.Color(153, 0, 0));
+        jPanel6.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jLabel10.setFont(new java.awt.Font("Yu Gothic UI Semibold", 1, 18)); // NOI18N
+        jLabel10.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel10.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/icons8_Home_26px_2.png"))); // NOI18N
+        jLabel10.setText("DASHBOARD");
+        jPanel6.add(jLabel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 0, -1, 40));
+
+        jPanel2.add(jPanel6);
+        jPanel6.setBounds(0, 100, 250, 40);
 
         jLabel1.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
         jLabel1.setForeground(new java.awt.Color(255, 255, 255));
@@ -153,99 +239,20 @@ public class userdashboard extends javax.swing.JFrame {
         jPanel2.add(jLabel4);
         jLabel4.setBounds(20, 320, 210, 30);
 
-        jPanel6.setBackground(new java.awt.Color(153, 0, 0));
-        jPanel6.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
-
-        jLabel10.setFont(new java.awt.Font("Yu Gothic UI Semibold", 1, 18)); // NOI18N
-        jLabel10.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel10.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/icons8_Home_26px_2.png"))); // NOI18N
-        jLabel10.setText("Home Page ");
-        jPanel6.add(jLabel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 0, -1, 40));
-
-        jPanel2.add(jPanel6);
-        jPanel6.setBounds(0, 100, 250, 40);
-
         jLabel12.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
         jLabel12.setForeground(new java.awt.Color(255, 255, 255));
         jLabel12.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/icons8_Contact_26px.png"))); // NOI18N
         jLabel12.setText("NOTIFICATION");
+        jLabel12.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jLabel12MouseClicked(evt);
+            }
+        });
         jPanel2.add(jLabel12);
         jLabel12.setBounds(20, 360, 140, 30);
 
         jPanel1.add(jPanel2);
         jPanel2.setBounds(0, 0, 250, 510);
-
-        jLabel6.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
-        jLabel6.setText("View Profile");
-        jPanel1.add(jLabel6);
-        jLabel6.setBounds(610, 300, 110, 20);
-
-        jPanel4.setBackground(new java.awt.Color(153, 0, 0));
-        jPanel4.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jPanel4MouseClicked(evt);
-            }
-        });
-        jPanel4.setLayout(null);
-
-        jPanel7.setBackground(new java.awt.Color(51, 51, 51));
-
-        javax.swing.GroupLayout jPanel7Layout = new javax.swing.GroupLayout(jPanel7);
-        jPanel7.setLayout(jPanel7Layout);
-        jPanel7Layout.setHorizontalGroup(
-            jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 230, Short.MAX_VALUE)
-        );
-        jPanel7Layout.setVerticalGroup(
-            jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 30, Short.MAX_VALUE)
-        );
-
-        jPanel4.add(jPanel7);
-        jPanel7.setBounds(0, 0, 230, 30);
-
-        jLabel8.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/icons8_Account_50px.png"))); // NOI18N
-        jPanel4.add(jLabel8);
-        jLabel8.setBounds(90, 60, 50, 50);
-
-        jPanel1.add(jPanel4);
-        jPanel4.setBounds(610, 330, 230, 160);
-
-        jLabel9.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/cover2.png"))); // NOI18N
-        jPanel1.add(jLabel9);
-        jLabel9.setBounds(250, 70, 660, 220);
-
-        jPanel5.setBackground(new java.awt.Color(153, 0, 0));
-        jPanel5.setLayout(null);
-
-        jPanel8.setBackground(new java.awt.Color(51, 51, 51));
-
-        javax.swing.GroupLayout jPanel8Layout = new javax.swing.GroupLayout(jPanel8);
-        jPanel8.setLayout(jPanel8Layout);
-        jPanel8Layout.setHorizontalGroup(
-            jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 230, Short.MAX_VALUE)
-        );
-        jPanel8Layout.setVerticalGroup(
-            jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 30, Short.MAX_VALUE)
-        );
-
-        jPanel5.add(jPanel8);
-        jPanel8.setBounds(0, 0, 230, 30);
-
-        books.setFont(new java.awt.Font("Tahoma", 1, 24)); // NOI18N
-        books.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/icons8_Book_Shelf_50px.png"))); // NOI18N
-        jPanel5.add(books);
-        books.setBounds(50, 60, 130, 50);
-
-        jPanel1.add(jPanel5);
-        jPanel5.setBounds(330, 330, 230, 160);
-
-        jLabel11.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
-        jLabel11.setText("No. of Books");
-        jPanel1.add(jLabel11);
-        jLabel11.setBounds(330, 300, 110, 20);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -261,12 +268,6 @@ public class userdashboard extends javax.swing.JFrame {
         pack();
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
-
-    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
-       LoginForm dash = new LoginForm();
-       dash.setVisible(true);
-       this.dispose();
-    }//GEN-LAST:event_jButton3ActionPerformed
 
     private void label2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_label2MouseClicked
         
@@ -296,6 +297,18 @@ public class userdashboard extends javax.swing.JFrame {
         } 
     }//GEN-LAST:event_formWindowActivated
 
+    private void jPanel4MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jPanel4MouseClicked
+        userprofile dash = new userprofile();
+        dash.setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_jPanel4MouseClicked
+
+    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+        LoginForm dash = new LoginForm();
+        dash.setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_jButton3ActionPerformed
+
     private void jLabel1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel1MouseClicked
         borrow dash = new borrow();
         dash.setVisible(true);
@@ -309,7 +322,7 @@ public class userdashboard extends javax.swing.JFrame {
     }//GEN-LAST:event_jLabel2MouseClicked
 
     private void jLabel3MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel3MouseClicked
-         avab dash = new avab();
+        avab dash = new avab();
         dash.setVisible(true);
         this.dispose();
     }//GEN-LAST:event_jLabel3MouseClicked
@@ -320,11 +333,11 @@ public class userdashboard extends javax.swing.JFrame {
         this.dispose();
     }//GEN-LAST:event_jLabel4MouseClicked
 
-    private void jPanel4MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jPanel4MouseClicked
-        userprofile dash = new userprofile();
+    private void jLabel12MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel12MouseClicked
+        Notification dash = new Notification();
         dash.setVisible(true);
         this.dispose();
-    }//GEN-LAST:event_jPanel4MouseClicked
+    }//GEN-LAST:event_jLabel12MouseClicked
 
     /**
      * @param args the command line arguments

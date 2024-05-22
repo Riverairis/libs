@@ -10,7 +10,6 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import javax.swing.JOptionPane;
 
 public class display {
     private static Connection connect;
@@ -20,38 +19,6 @@ public class display {
             connect = DriverManager.getConnection("jdbc:mysql://localhost:3306/new", "root", "");
         }
         return connect;
-    }
-    
-    
-    
-    
-     public static void borrowBook(String bookID) {
-        try {
-            Connection connection = getConnection();
-            if (connection != null) {
-                PreparedStatement checkStmt = connection.prepareStatement("SELECT * FROM books WHERE book_id = ? AND Status = 'Available'");
-                checkStmt.setString(1, bookID);
-                ResultSet checkResult = checkStmt.executeQuery();
-
-                if (checkResult.next()) {
-                    PreparedStatement borrowStmt = connection.prepareStatement("UPDATE books SET Status = 'Borrowed' WHERE book_id = ?");
-                    borrowStmt.setString(1, bookID);
-                    int rowsUpdated = borrowStmt.executeUpdate();
-                    if (rowsUpdated > 0) {
-                        JOptionPane.showMessageDialog(null, "Book borrowed successfully!");
-                    } else {
-                        JOptionPane.showMessageDialog(null, "Failed to borrow the book.");
-                    }
-                } else {
-                    JOptionPane.showMessageDialog(null, "Book with ID " + bookID + " is not available for borrowing.");
-                }
-            } else {
-                JOptionPane.showMessageDialog(null, "Failed to establish a connection to the database.");
-            }
-        } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(null, "Error borrowing book: " + ex.getMessage());
-            ex.printStackTrace();
-        }
     }
      
      public static int getNumBooks() throws SQLException {

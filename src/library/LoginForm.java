@@ -10,10 +10,8 @@ import config.Session;
 import config.dbConnector;
 import config.passwordHasher;
 import java.security.NoSuchAlgorithmException;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import user.userdashboard;
 
@@ -28,6 +26,7 @@ public class LoginForm extends javax.swing.JFrame {
      */
     public LoginForm() {
         initComponents();
+        setTitle("LIBRARY");
     }
     
     static String status;
@@ -264,13 +263,11 @@ public class LoginForm extends javax.swing.JFrame {
     }//GEN-LAST:event_registerActionPerformed
 
     private void usMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_usMouseClicked
-        
         us.setText("");
     }//GEN-LAST:event_usMouseClicked
 
     private void psFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_psFocusGained
-        
-        ps.setText("");
+         ps.setText("");
     }//GEN-LAST:event_psFocusGained
 
     private void checkActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkActionPerformed

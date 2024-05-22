@@ -6,12 +6,9 @@
 package user;
 
 import config.Session;
-import config.dbConnector;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import javax.swing.JOptionPane;
-import static library.registerForm.email;
-import static library.registerForm.uname;
+import java.awt.Image;
+import javax.swing.ImageIcon;
+
 
 /**
  *
@@ -25,36 +22,10 @@ public class userprofile extends javax.swing.JFrame {
      */
     public userprofile() {
         initComponents();
+        setTitle("LIBRARY");
     }
     
-    public boolean duplicateCheck(){
-        dbConnector dbc = new dbConnector();
-        
-        try{
-             String query = "SELECT * FROM tbl WHERE (u_username = '" + uss.getText() + "' OR u_email = '" +ems.getText()+ "') And u_id != '" +id .getText()+ "' " ;
-        ResultSet resultSet = dbc.getData(query);
-        
-        if(resultSet.next()){
-            email = resultSet.getString("u_email");
-            if (email.equals(ems.getText())) {
-                JOptionPane.showMessageDialog(null, "Email already exists! Please use a different one.");   
-                ems.setText("");
-            }
-            uname = resultSet.getString("u_username");
-            if (uname.equals(uss.getText())) {
-                JOptionPane.showMessageDialog(null, "Username already exists! Please choose a different one."); 
-                 uss.setText("");
-            }
-            return true;
-        }else{
-            return false;
-        }
-        
-        } catch (SQLException ex) {
-            System.out.println(""+ex);
-        return false;
-        }
-    }
+   
     
      
 
@@ -177,33 +148,19 @@ public class userprofile extends javax.swing.JFrame {
         jPanel3.setBounds(0, 0, 600, 60);
 
         jPanel4.setBackground(new java.awt.Color(51, 51, 51));
+        jPanel4.setLayout(null);
 
-        jLabel6.setFont(new java.awt.Font("Tahoma", 3, 14)); // NOI18N
+        jLabel6.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
         jLabel6.setForeground(new java.awt.Color(255, 255, 255));
         jLabel6.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/icons8_Unit_26px.png"))); // NOI18N
-        jLabel6.setText("Change Pass");
+        jLabel6.setText("CHANGE PASS");
         jLabel6.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 jLabel6MouseClicked(evt);
             }
         });
-
-        javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
-        jPanel4.setLayout(jPanel4Layout);
-        jPanel4Layout.setHorizontalGroup(
-            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel4Layout.createSequentialGroup()
-                .addGap(22, 22, 22)
-                .addComponent(jLabel6, javax.swing.GroupLayout.DEFAULT_SIZE, 125, Short.MAX_VALUE)
-                .addGap(33, 33, 33))
-        );
-        jPanel4Layout.setVerticalGroup(
-            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel4Layout.createSequentialGroup()
-                .addGap(31, 31, 31)
-                .addComponent(jLabel6)
-                .addContainerGap(293, Short.MAX_VALUE))
-        );
+        jPanel4.add(jLabel6);
+        jLabel6.setBounds(10, 20, 160, 30);
 
         jPanel1.add(jPanel4);
         jPanel4.setBounds(0, 60, 180, 350);
@@ -240,10 +197,9 @@ public class userprofile extends javax.swing.JFrame {
        fns.setText(""+sess.getFname());
        lns.setText(""+sess.getLname());
        ems.setText(""+sess.getEmail());
-       uss.setText(""+sess.getUsername());
-      
+       uss.setText(""+sess.getUsername());      
        stats.setText(""+sess.getStatus());
-       
+
     }//GEN-LAST:event_formWindowActivated
 
     private void jLabel6MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel6MouseClicked

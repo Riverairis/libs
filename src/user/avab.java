@@ -26,6 +26,7 @@ public class avab extends javax.swing.JFrame {
      */
     public avab() {
         initComponents();
+        setTitle("LIBRARY");
         displayData();
     }
     
@@ -65,12 +66,12 @@ public class avab extends javax.swing.JFrame {
         label2 = new javax.swing.JLabel();
         jPanel2 = new javax.swing.JPanel();
         jButton3 = new javax.swing.JButton();
+        jPanel6 = new javax.swing.JPanel();
+        jLabel10 = new javax.swing.JLabel();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
-        jPanel6 = new javax.swing.JPanel();
-        jLabel10 = new javax.swing.JLabel();
         jLabel12 = new javax.swing.JLabel();
         searchs = new javax.swing.JTextField();
         jLabel11 = new javax.swing.JLabel();
@@ -126,6 +127,18 @@ public class avab extends javax.swing.JFrame {
         jPanel2.add(jButton3);
         jButton3.setBounds(70, 470, 100, 23);
 
+        jPanel6.setBackground(new java.awt.Color(153, 0, 0));
+        jPanel6.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jLabel10.setFont(new java.awt.Font("Yu Gothic UI Semibold", 1, 18)); // NOI18N
+        jLabel10.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel10.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/icons8_Home_26px_2.png"))); // NOI18N
+        jLabel10.setText("DASHBOARD");
+        jPanel6.add(jLabel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 0, -1, 40));
+
+        jPanel2.add(jPanel6);
+        jPanel6.setBounds(0, 100, 250, 40);
+
         jLabel1.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
         jLabel1.setForeground(new java.awt.Color(255, 255, 255));
         jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/icons8_Moleskine_26px.png"))); // NOI18N
@@ -148,7 +161,7 @@ public class avab extends javax.swing.JFrame {
             }
         });
         jPanel2.add(jLabel2);
-        jLabel2.setBounds(20, 220, 100, 30);
+        jLabel2.setBounds(20, 230, 100, 30);
 
         jLabel3.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
         jLabel3.setForeground(new java.awt.Color(255, 255, 255));
@@ -160,7 +173,7 @@ public class avab extends javax.swing.JFrame {
             }
         });
         jPanel2.add(jLabel3);
-        jLabel3.setBounds(20, 270, 200, 30);
+        jLabel3.setBounds(20, 270, 200, 40);
 
         jLabel4.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
         jLabel4.setForeground(new java.awt.Color(255, 255, 255));
@@ -174,24 +187,17 @@ public class avab extends javax.swing.JFrame {
         jPanel2.add(jLabel4);
         jLabel4.setBounds(20, 320, 210, 30);
 
-        jPanel6.setBackground(new java.awt.Color(153, 0, 0));
-        jPanel6.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
-
-        jLabel10.setFont(new java.awt.Font("Yu Gothic UI Semibold", 1, 18)); // NOI18N
-        jLabel10.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel10.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/icons8_Home_26px_2.png"))); // NOI18N
-        jLabel10.setText("Home Page ");
-        jPanel6.add(jLabel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 0, -1, 40));
-
-        jPanel2.add(jPanel6);
-        jPanel6.setBounds(0, 100, 250, 40);
-
         jLabel12.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
         jLabel12.setForeground(new java.awt.Color(255, 255, 255));
         jLabel12.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/icons8_Contact_26px.png"))); // NOI18N
-        jLabel12.setText("PROFILE");
+        jLabel12.setText("NOTIFICATION");
+        jLabel12.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jLabel12MouseClicked(evt);
+            }
+        });
         jPanel2.add(jLabel12);
-        jLabel12.setBounds(20, 370, 110, 20);
+        jLabel12.setBounds(20, 360, 140, 30);
 
         jPanel1.add(jPanel2);
         jPanel2.setBounds(0, 0, 250, 510);
@@ -269,6 +275,50 @@ public class avab extends javax.swing.JFrame {
         this.dispose();
     }//GEN-LAST:event_jButton3ActionPerformed
 
+    private void label2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_label2MouseClicked
+
+    }//GEN-LAST:event_label2MouseClicked
+
+    private void searchsMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_searchsMouseClicked
+        searchs.setText("");
+    }//GEN-LAST:event_searchsMouseClicked
+
+    private void jLabel11MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel11MouseClicked
+        try {
+            String searchTerm = searchs.getText().trim();
+            if (!searchTerm.isEmpty() && !searchTerm.equals("Input Here")) {
+                Connection connection = display.getConnection();
+            if (connection != null) {
+                String query = "SELECT book_id, book_name, author, Publisher, Status, quantity FROM books WHERE book_id LIKE ? OR book_name LIKE ? OR author LIKE ? OR Publisher LIKE ? OR Status LIKE ? OR quantity LIKE ?";
+                PreparedStatement pstmt = connection.prepareStatement(query);
+                String likeTerm = "%" + searchTerm + "%";
+            for (int i = 1; i <= 6; i++) {
+                pstmt.setString(i, likeTerm);
+            }
+            ResultSet rs = pstmt.executeQuery();
+
+            if (rs != null) {
+                table.setModel(DbUtils.resultSetToTableModel(rs));
+                rs.close();
+            } else {
+                JOptionPane.showMessageDialog(this, "No matching books found.");
+            }
+                } else {
+                    JOptionPane.showMessageDialog(this, "Failed to establish a connection to the database.");
+                }
+            } else {
+                JOptionPane.showMessageDialog(this, "Please enter a search term.");
+            }
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(this, "Error fetching search results: " + ex.getMessage());
+            ex.printStackTrace();
+        }
+    }//GEN-LAST:event_jLabel11MouseClicked
+
+    private void jLabel6MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel6MouseClicked
+        displayData();
+    }//GEN-LAST:event_jLabel6MouseClicked
+
     private void jLabel1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel1MouseClicked
         borrow dash = new borrow();
         dash.setVisible(true);
@@ -293,49 +343,11 @@ public class avab extends javax.swing.JFrame {
         this.dispose();
     }//GEN-LAST:event_jLabel4MouseClicked
 
-    private void label2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_label2MouseClicked
-
-    }//GEN-LAST:event_label2MouseClicked
-
-    private void searchsMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_searchsMouseClicked
-        searchs.setText("");
-    }//GEN-LAST:event_searchsMouseClicked
-
-    private void jLabel11MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel11MouseClicked
-        try {
-            String searchTerm = searchs.getText().trim();
-            if (!searchTerm.isEmpty() && !searchTerm.equals("Input Here")) {
-                Connection connection = display.getConnection();
-                if (connection != null) {
-                    String query = "SELECT book_id, book_name, author, Publisher, Status, quantity FROM books WHERE book_id LIKE ? OR book_name LIKE ? OR author LIKE ? OR Publisher LIKE ? OR Status LIKE ? OR quantity LIKE ?";
-                    PreparedStatement pstmt = connection.prepareStatement(query);
-                    String likeTerm = "%" + searchTerm + "%";
-                    for (int i = 1; i <= 6; i++) {
-                        pstmt.setString(i, likeTerm);
-                    }
-                    ResultSet rs = pstmt.executeQuery();
-
-                    if (rs != null) {
-                        table.setModel(DbUtils.resultSetToTableModel(rs));
-                        rs.close();
-                    } else {
-                        JOptionPane.showMessageDialog(this, "No matching books found.");
-                    }
-                } else {
-                    JOptionPane.showMessageDialog(this, "Failed to establish a connection to the database.");
-                }
-            } else {
-                JOptionPane.showMessageDialog(this, "Please enter a search term.");
-            }
-        } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(this, "Error fetching search results: " + ex.getMessage());
-            ex.printStackTrace();
-        }
-    }//GEN-LAST:event_jLabel11MouseClicked
-
-    private void jLabel6MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel6MouseClicked
-        displayData();
-    }//GEN-LAST:event_jLabel6MouseClicked
+    private void jLabel12MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel12MouseClicked
+        Notification dash = new Notification();
+        dash.setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_jLabel12MouseClicked
 
     /**
      * @param args the command line arguments

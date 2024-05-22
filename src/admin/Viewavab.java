@@ -8,17 +8,12 @@ package admin;
 
 import config.Session;
 import config.display;
-import java.awt.print.PrinterException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.text.MessageFormat;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JOptionPane;
-import javax.swing.JTable;
-import javax.swing.JTextArea;
+import javax.swing.table.TableModel;
 import library.LoginForm;
 import net.proteanit.sql.DbUtils;
 
@@ -33,6 +28,7 @@ public class Viewavab extends javax.swing.JFrame {
      */
     public Viewavab() {
         initComponents();
+        setTitle("LIBRARY");
         displayData();
     }
     
@@ -82,14 +78,6 @@ public class Viewavab extends javax.swing.JFrame {
         label2 = new javax.swing.JLabel();
         jLabel13 = new javax.swing.JLabel();
         jLabel14 = new javax.swing.JLabel();
-        jPanel3 = new javax.swing.JPanel();
-        jButton4 = new javax.swing.JButton();
-        jLabel5 = new javax.swing.JLabel();
-        jLabel7 = new javax.swing.JLabel();
-        jLabel8 = new javax.swing.JLabel();
-        jLabel9 = new javax.swing.JLabel();
-        jPanel6 = new javax.swing.JPanel();
-        jLabel10 = new javax.swing.JLabel();
         jPanel2 = new javax.swing.JPanel();
         print = new javax.swing.JLabel();
         jPanel4 = new javax.swing.JPanel();
@@ -100,6 +88,16 @@ public class Viewavab extends javax.swing.JFrame {
         jSeparator1 = new javax.swing.JSeparator();
         jLabel11 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
+        jPanel11 = new javax.swing.JPanel();
+        jButton6 = new javax.swing.JButton();
+        jPanel6 = new javax.swing.JPanel();
+        jLabel10 = new javax.swing.JLabel();
+        jLabel12 = new javax.swing.JLabel();
+        jLabel1 = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
+        jLabel15 = new javax.swing.JLabel();
+        jLabel16 = new javax.swing.JLabel();
+        jLabel9 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         addWindowListener(new java.awt.event.WindowAdapter() {
@@ -151,86 +149,11 @@ public class Viewavab extends javax.swing.JFrame {
         jPanel1.add(jPanel7);
         jPanel7.setBounds(0, 0, 910, 70);
 
-        jPanel3.setBackground(new java.awt.Color(51, 51, 51));
-        jPanel3.setLayout(null);
-
-        jButton4.setBackground(new java.awt.Color(153, 0, 0));
-        jButton4.setText("LOGOUT");
-        jButton4.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton4ActionPerformed(evt);
-            }
-        });
-        jPanel3.add(jButton4);
-        jButton4.setBounds(70, 460, 100, 30);
-
-        jLabel5.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
-        jLabel5.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel5.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/icons8_Exit_26px_2.png"))); // NOI18N
-        jLabel5.setText("REMOVE BOOKS");
-        jLabel5.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jLabel5MouseClicked(evt);
-            }
-        });
-        jPanel3.add(jLabel5);
-        jLabel5.setBounds(30, 230, 160, 30);
-
-        jLabel7.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
-        jLabel7.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel7.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/icons8-book-reading-24.png"))); // NOI18N
-        jLabel7.setText("VIEW AVAILABLE BOOKS");
-        jLabel7.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jLabel7MouseClicked(evt);
-            }
-        });
-        jPanel3.add(jLabel7);
-        jLabel7.setBounds(30, 280, 220, 30);
-
-        jLabel8.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
-        jLabel8.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel8.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/icons8_Contact_26px.png"))); // NOI18N
-        jLabel8.setText("VIEW USERS");
-        jLabel8.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jLabel8MouseClicked(evt);
-            }
-        });
-        jPanel3.add(jLabel8);
-        jLabel8.setBounds(30, 330, 120, 30);
-
-        jLabel9.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
-        jLabel9.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel9.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/icons8_Moleskine_26px.png"))); // NOI18N
-        jLabel9.setText("ADD BOOKS");
-        jLabel9.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jLabel9MouseClicked(evt);
-            }
-        });
-        jPanel3.add(jLabel9);
-        jLabel9.setBounds(30, 180, 130, 30);
-
-        jPanel6.setBackground(new java.awt.Color(153, 0, 0));
-        jPanel6.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
-
-        jLabel10.setFont(new java.awt.Font("Yu Gothic UI Semibold", 1, 18)); // NOI18N
-        jLabel10.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel10.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/icons8_Home_26px_2.png"))); // NOI18N
-        jLabel10.setText("Home Page ");
-        jPanel6.add(jLabel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 0, -1, 40));
-
-        jPanel3.add(jPanel6);
-        jPanel6.setBounds(0, 100, 250, 40);
-
-        jPanel1.add(jPanel3);
-        jPanel3.setBounds(0, 0, 250, 510);
-
         jPanel2.setBackground(new java.awt.Color(153, 0, 0));
         jPanel2.setLayout(null);
 
         print.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        print.setForeground(new java.awt.Color(255, 255, 255));
         print.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/print.png"))); // NOI18N
         print.setText("PRINT");
         print.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -248,6 +171,7 @@ public class Viewavab extends javax.swing.JFrame {
         jPanel4.setLayout(null);
 
         printtable.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        printtable.setForeground(new java.awt.Color(255, 255, 255));
         printtable.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/table.png"))); // NOI18N
         printtable.setText("PRINT AS TABLE");
         printtable.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -305,6 +229,107 @@ public class Viewavab extends javax.swing.JFrame {
         jPanel1.add(jLabel4);
         jLabel4.setBounds(670, 80, 23, 40);
 
+        jPanel11.setBackground(new java.awt.Color(51, 51, 51));
+        jPanel11.setForeground(new java.awt.Color(255, 255, 255));
+        jPanel11.setLayout(null);
+
+        jButton6.setBackground(new java.awt.Color(153, 0, 0));
+        jButton6.setText("LOGOUT");
+        jButton6.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton6ActionPerformed(evt);
+            }
+        });
+        jPanel11.add(jButton6);
+        jButton6.setBounds(70, 460, 100, 30);
+
+        jPanel6.setBackground(new java.awt.Color(153, 0, 0));
+        jPanel6.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jLabel10.setFont(new java.awt.Font("Yu Gothic UI Semibold", 1, 18)); // NOI18N
+        jLabel10.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel10.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/icons8_Home_26px_2.png"))); // NOI18N
+        jLabel10.setText("DASHBOARD");
+        jPanel6.add(jLabel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 0, -1, 40));
+
+        jPanel11.add(jPanel6);
+        jPanel6.setBounds(0, 100, 250, 40);
+
+        jLabel12.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
+        jLabel12.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel12.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/icons8_Moleskine_26px.png"))); // NOI18N
+        jLabel12.setText("ADD BOOKS");
+        jLabel12.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jLabel12MouseClicked(evt);
+            }
+        });
+        jPanel11.add(jLabel12);
+        jLabel12.setBounds(20, 170, 130, 30);
+
+        jLabel1.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
+        jLabel1.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/icons8_Exit_26px_2.png"))); // NOI18N
+        jLabel1.setText("REMOVE BOOKS");
+        jLabel1.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jLabel1MouseClicked(evt);
+            }
+        });
+        jPanel11.add(jLabel1);
+        jLabel1.setBounds(20, 210, 160, 30);
+
+        jLabel2.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
+        jLabel2.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/icons8_Library_32px.png"))); // NOI18N
+        jLabel2.setText("VIEW AVAILABLE BOOKS");
+        jLabel2.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jLabel2MouseClicked(evt);
+            }
+        });
+        jPanel11.add(jLabel2);
+        jLabel2.setBounds(20, 250, 220, 30);
+
+        jLabel15.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
+        jLabel15.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel15.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/icons8_Contact_26px.png"))); // NOI18N
+        jLabel15.setText("VIEW USERS");
+        jLabel15.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jLabel15MouseClicked(evt);
+            }
+        });
+        jPanel11.add(jLabel15);
+        jLabel15.setBounds(20, 290, 120, 30);
+
+        jLabel16.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+        jLabel16.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel16.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/icons8-book-reading-24.png"))); // NOI18N
+        jLabel16.setText("REPORTS");
+        jLabel16.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jLabel16MouseClicked(evt);
+            }
+        });
+        jPanel11.add(jLabel16);
+        jLabel16.setBounds(20, 370, 150, 30);
+
+        jLabel9.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
+        jLabel9.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel9.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/icons8_Unit_26px.png"))); // NOI18N
+        jLabel9.setText("ARCHIVE");
+        jLabel9.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jLabel9MouseClicked(evt);
+            }
+        });
+        jPanel11.add(jLabel9);
+        jLabel9.setBounds(20, 330, 130, 30);
+
+        jPanel1.add(jPanel11);
+        jPanel11.setBounds(0, 0, 250, 510);
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -333,37 +358,6 @@ public class Viewavab extends javax.swing.JFrame {
         
         } 
     }//GEN-LAST:event_formWindowActivated
-
-    private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
-        JOptionPane.showMessageDialog(null, "Logout Successful!");
-        LoginForm dash = new LoginForm();
-        dash.setVisible(true);
-        this.dispose();
-    }//GEN-LAST:event_jButton4ActionPerformed
-
-    private void jLabel5MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel5MouseClicked
-        remove loginForm = new remove();
-        loginForm.setVisible(true);
-        this.dispose();
-    }//GEN-LAST:event_jLabel5MouseClicked
-
-    private void jLabel7MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel7MouseClicked
-        Viewavab loginForm = new Viewavab();
-        loginForm.setVisible(true);
-        this.dispose();
-    }//GEN-LAST:event_jLabel7MouseClicked
-
-    private void jLabel8MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel8MouseClicked
-        viewusers loginForm = new viewusers();
-        loginForm.setVisible(true);
-        this.dispose();
-    }//GEN-LAST:event_jLabel8MouseClicked
-
-    private void jLabel9MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel9MouseClicked
-        ADD loginForm = new ADD();
-        loginForm.setVisible(true);
-        this.dispose();
-    }//GEN-LAST:event_jLabel9MouseClicked
 
     private void jLabel6MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel6MouseClicked
         admindashboard ad = new  admindashboard();
@@ -416,48 +410,79 @@ public class Viewavab extends javax.swing.JFrame {
     }//GEN-LAST:event_jLabel4MouseClicked
 
     private void printtableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_printtableMouseClicked
-       MessageFormat header = new MessageFormat("Library Management System");
-      MessageFormat footer = new MessageFormat("Page{0,number,integer}");
-      
-      try{
-          table.print(JTable.PrintMode.NORMAL, header, footer);
-      } catch (PrinterException ex) {
-            Logger.getLogger(Viewavab.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }//GEN-LAST:event_printtableMouseClicked
-
-    private void printMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_printMouseClicked
-    int row = table.getSelectedRow();
-    int column = table.getSelectedColumn();
-    
-    if (row == -1 || column == -1) {
+       TableModel model = table.getModel();
+    if (model.getRowCount() == 0) {
+        JOptionPane.showMessageDialog(null, "The table is empty!");
         return;
     }
     
-    String columnName = table.getColumnName(column);
     
-    Object cellData = table.getValueAt(row, column);
-    
-    StringBuilder rowData = new StringBuilder();
-    
-    rowData.append(columnName).append(" = ").append(cellData != null ? cellData.toString() : "").append("\n");
-    
-    for (int col = 0; col < table.getColumnCount(); col++) {
-        if (col != column) {
-            String otherColumnName = table.getColumnName(col);
-            Object otherCellData = table.getValueAt(row, col);
-            rowData.append(otherColumnName).append(" = ").append(otherCellData != null ? otherCellData.toString() : "").append("\n");
+    PrintTable us = new PrintTable();
+    us.setVisible(true);
+    this.dispose();
+    }//GEN-LAST:event_printtableMouseClicked
+
+    private void printMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_printMouseClicked
+    int rowIndex = table.getSelectedRow();
+        
+        if(rowIndex < 0){
+            JOptionPane.showMessageDialog(null, "Please Select an item!");
+        }else{
+            TableModel model = table.getModel();
+            individualPrinting us = new individualPrinting();
+            us.id.setText(""+model.getValueAt(rowIndex, 0));
+            us.name.setText(""+model.getValueAt(rowIndex, 1));           
+            us.author.setText(""+model.getValueAt(rowIndex, 2));
+            us.quan.setText(""+model.getValueAt(rowIndex, 5));           
+            us.publisher.setText(""+model.getValueAt(rowIndex, 3));
+            us.setVisible(true);
+            
+            this.dispose();
         }
-    }
-    
-    try {
-        JTextArea textArea = new JTextArea(rowData.toString());
-        textArea.print();
-    } catch (PrinterException ex) {
-        Logger.getLogger(Viewavab.class.getName()).log(Level.SEVERE, null, ex);
-        JOptionPane.showMessageDialog(this, "Error printing the selected row data: " + ex.getMessage());
-    }
     }//GEN-LAST:event_printMouseClicked
+
+    private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
+        JOptionPane.showMessageDialog(null, "Logout Successful!");
+        LoginForm dash = new LoginForm();
+        dash.setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_jButton6ActionPerformed
+
+    private void jLabel12MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel12MouseClicked
+        ADD loginForm = new ADD();
+        loginForm.setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_jLabel12MouseClicked
+
+    private void jLabel1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel1MouseClicked
+        remove loginForm = new remove();
+        loginForm.setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_jLabel1MouseClicked
+
+    private void jLabel2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel2MouseClicked
+        Viewavab loginForm = new Viewavab();
+        loginForm.setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_jLabel2MouseClicked
+
+    private void jLabel15MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel15MouseClicked
+        viewusers loginForm = new viewusers();
+        loginForm.setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_jLabel15MouseClicked
+
+    private void jLabel16MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel16MouseClicked
+        reports rs = new reports();
+        rs.setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_jLabel16MouseClicked
+
+    private void jLabel9MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel9MouseClicked
+        archive rs = new archive();
+        rs.setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_jLabel9MouseClicked
 
     /**
      * @param args the command line arguments
@@ -496,21 +521,23 @@ public class Viewavab extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButton4;
+    private javax.swing.JButton jButton6;
+    private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
+    private javax.swing.JLabel jLabel12;
     private javax.swing.JLabel jLabel13;
     private javax.swing.JLabel jLabel14;
+    private javax.swing.JLabel jLabel15;
+    private javax.swing.JLabel jLabel16;
+    private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
-    private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
-    private javax.swing.JLabel jLabel7;
-    private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel11;
     private javax.swing.JPanel jPanel2;
-    private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
     private javax.swing.JPanel jPanel5;
     private javax.swing.JPanel jPanel6;

@@ -23,12 +23,10 @@ public class viewusers extends javax.swing.JFrame {
      */
     public viewusers() {
         initComponents();
-        
-        displayData();
-        
+        setTitle("LIBRARY");        
+        displayData();       
     }
     
-   
     
     public void displayData(){
         try{
@@ -41,8 +39,9 @@ public class viewusers extends javax.swing.JFrame {
             }
     }
     
-    
      public String Action;
+     
+    
     
     /**
      * This method is called from within the constructor to initialize the form.
@@ -67,7 +66,6 @@ public class viewusers extends javax.swing.JFrame {
         jSeparator1 = new javax.swing.JSeparator();
         jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
-        jButton1 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -178,18 +176,6 @@ public class viewusers extends javax.swing.JFrame {
         jPanel1.add(jLabel4);
         jLabel4.setBounds(670, 80, 23, 40);
 
-        jButton1.setBackground(new java.awt.Color(153, 0, 0));
-        jButton1.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
-        jButton1.setForeground(new java.awt.Color(255, 255, 255));
-        jButton1.setText("ARCHIVE");
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
-            }
-        });
-        jPanel1.add(jButton1);
-        jButton1.setBounds(270, 80, 90, 30);
-
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -206,51 +192,74 @@ public class viewusers extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void editActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_editActionPerformed
-        int rowIndex = table.getSelectedRow();
-        if(rowIndex < 0){
-            JOptionPane.showMessageDialog(null, "Please Select an item!");
-        }else{
+       int rowIndex = table.getSelectedRow();
+    if (rowIndex < 0) {
+        JOptionPane.showMessageDialog(null, "Please Select an item!");
+    } else {
+        try {
+            dbConnector dbc = new dbConnector();
             TableModel model = table.getModel();
-            user us = new user();
-            us.id.setText(""+model.getValueAt(rowIndex, 0));
-            us.fn.setText(""+model.getValueAt(rowIndex, 1));
-            us.ln.setText(""+model.getValueAt(rowIndex, 2));
-            us.em.setText(""+model.getValueAt(rowIndex, 3));
-            us.nums.setText(""+model.getValueAt(rowIndex, 8));
-            us.us.setText(""+model.getValueAt(rowIndex, 4));
-            us.ps.setText(""+model.getValueAt(rowIndex, 5));
-            us.stats.setSelectedItem(model.getValueAt(rowIndex, 6));
-            us.type.setSelectedItem(model.getValueAt(rowIndex, 7));
-            us.setVisible(true);
-            us.Action = "Update";
-            us.label.setText("UPDATE");
-            this.dispose();
+            ResultSet rs = dbc.getData("SELECT * FROM tbl WHERE u_id ='" + model.getValueAt(rowIndex, 0) + "'");
+            if (rs.next()) { 
+                user us = new user();
+                us.id.setText(String.valueOf(model.getValueAt(rowIndex, 0)));
+                us.fn.setText(String.valueOf(model.getValueAt(rowIndex, 1)));
+                us.ln.setText(String.valueOf(model.getValueAt(rowIndex, 2)));
+                us.em.setText(String.valueOf(model.getValueAt(rowIndex, 3)));
+                us.nums.setText(String.valueOf(model.getValueAt(rowIndex, 8)));
+                us.us.setText(String.valueOf(model.getValueAt(rowIndex, 4)));
+                us.ps.setText(String.valueOf(model.getValueAt(rowIndex, 5)));
+                us.stats.setSelectedItem(model.getValueAt(rowIndex, 6));
+                us.type.setSelectedItem(model.getValueAt(rowIndex, 7));
+                us.image.setIcon(us.ResizeImage(rs.getString("u_image"), null, us.image));
+                us.oldpath = rs.getString("u_image");
+                us.path = rs.getString("u_image");
+                if (rs.getString("u_image").isEmpty()) {
+                    us.select.setEnabled(true);
+                    us.remove.setEnabled(false);
+                } else {
+                    us.select.setEnabled(false);
+                    us.remove.setEnabled(true);
+                }
+
+                us.Action = "Update";
+                us.label.setText("UPDATE");
+                us.setVisible(true);
+                this.dispose();
+            } else {
+                JOptionPane.showMessageDialog(null, "No data found for the selected item!");
+            }
+        } catch (SQLException ex) {
+            System.out.println("Can't connect to database: " + ex.getMessage());
         }
+    }
     }//GEN-LAST:event_editActionPerformed
 
     private void deleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteActionPerformed
-        int rowindex = table.getSelectedRow();
-    if(rowindex < 0){
-        JOptionPane.showMessageDialog(null, "Please Select an item!");           
-    } else {
-        int confirm = JOptionPane.showConfirmDialog(null, "Are you sure you want to delete this user?", "Confirm Deletion", JOptionPane.YES_NO_OPTION);
-        if (confirm == JOptionPane.YES_OPTION) {
-            try {
-                dbConnector dbc = new dbConnector();
-                TableModel model = table.getModel();
-                String id = model.getValueAt(rowindex, 0).toString(); 
-                
-                dbc.updateData("INSERT INTO archive SELECT * FROM tbl WHERE u_id = '" + id + "'");
-                
-                dbc.updateData("DELETE FROM tbl WHERE u_id = '" + id + "'");
-                
-                displayData(); 
-                JOptionPane.showMessageDialog(null, "User deleted and archived successfully!");
-            } catch(SQLException ex) {
-                System.out.println("Error deleting user: " + ex.getMessage());
-                JOptionPane.showMessageDialog(null, "Error deleting user!");
-            }
-        }
+     int rowIndex = table.getSelectedRow();
+    if (rowIndex < 0) {
+        JOptionPane.showMessageDialog(null, "Please Select an item!");
+        return; 
+    }
+    
+    int confirm = JOptionPane.showConfirmDialog(null, "Are you sure you want to archive this user?", "Confirm", JOptionPane.YES_NO_OPTION);
+    if (confirm != JOptionPane.YES_OPTION) {
+        return; 
+    }
+    
+    try {
+        dbConnector dbc = new dbConnector();
+        TableModel model = table.getModel();
+        String userId = String.valueOf(model.getValueAt(rowIndex, 0));
+
+        String updateQuery = "UPDATE tbl SET u_status = 'Archived' WHERE u_id = " + userId;
+        dbc.updateData(updateQuery); 
+
+        JOptionPane.showMessageDialog(null, "User status has been changed to Archived.");
+
+        displayData();  
+    } catch (SQLException ex) {
+        System.out.println("Error updating user status: " + ex.getMessage());
     }
     }//GEN-LAST:event_deleteActionPerformed
 
@@ -263,6 +272,8 @@ public class viewusers extends javax.swing.JFrame {
     private void addActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addActionPerformed
        user ad = new user();
        ad.setVisible(true);
+       ad.remove.setEnabled(false);
+       ad.select.setEnabled(true);
        this.dispose();
        ad.Action = "Add";
        ad.label.setText("SAVE");
@@ -297,13 +308,6 @@ public class viewusers extends javax.swing.JFrame {
     private void jLabel4MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel4MouseClicked
          displayData();
     }//GEN-LAST:event_jLabel4MouseClicked
-
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        
-                archive archiveForm = new archive();
-                archiveForm.setVisible(true);
-            this.dispose();
-    }//GEN-LAST:event_jButton1ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -344,7 +348,6 @@ public class viewusers extends javax.swing.JFrame {
     public javax.swing.JButton add;
     private javax.swing.JButton delete;
     public javax.swing.JButton edit;
-    private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;

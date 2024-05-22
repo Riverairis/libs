@@ -5,6 +5,12 @@
  */
 package user;
 
+import config.NotificationManager;
+import config.Session;
+import java.sql.Date;
+import java.util.List;
+import library.LoginForm;
+
 /**
  *
  * @author Hp
@@ -16,7 +22,42 @@ public class Notification extends javax.swing.JFrame {
      */
     public Notification() {
         initComponents();
+        setTitle("LIBRARY");
+        displayNotifications();
     }
+    
+   private void displayNotifications() {
+    StringBuilder notificationText = new StringBuilder();
+
+    Session sess = Session.getInstance();
+    int userID = sess.getId();
+
+    List<String[]> notifications = NotificationManager.checkApproachingReturnDates(3, userID); 
+    if (notifications.isEmpty()) {
+        returningDateLabel.setText("\n     No notifications at this time.");
+        return;
+    }
+
+    for (String[] notification : notifications) {
+        String bookID = notification[0];
+        String returnDateString = notification[1];
+
+        Date returnDate = null;
+        try {
+            returnDate = Date.valueOf(returnDateString);
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+            notificationText.append("\n     Book with ID:").append(bookID).append(" has an invalid return date format. Please check.\n");
+            continue; 
+        }
+        if (returnDate != null) {
+            notificationText.append("\n     Book with ID:").append(bookID).append(" is due for return on ").append(returnDate).append(". Please return it.\n");
+        } else {
+            notificationText.append("\n     Book with ID:").append(bookID).append(" has an invalid return date. Please check.\n");
+        }
+    }
+    returningDateLabel.setText(notificationText.toString());
+}
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -28,47 +69,204 @@ public class Notification extends javax.swing.JFrame {
     private void initComponents() {
 
         jPanel1 = new javax.swing.JPanel();
-        ret = new javax.swing.JButton();
+        jPanel3 = new javax.swing.JPanel();
+        jLabel5 = new javax.swing.JLabel();
+        jLabel7 = new javax.swing.JLabel();
+        label2 = new javax.swing.JLabel();
+        jPanel2 = new javax.swing.JPanel();
+        jButton3 = new javax.swing.JButton();
+        jPanel6 = new javax.swing.JPanel();
+        jLabel10 = new javax.swing.JLabel();
+        jLabel1 = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
+        jLabel4 = new javax.swing.JLabel();
+        jLabel12 = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
-        table = new javax.swing.JTable();
+        returningDateLabel = new javax.swing.JTextPane();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setBackground(new java.awt.Color(255, 255, 255));
 
+        jPanel1.setBackground(new java.awt.Color(255, 255, 255));
         jPanel1.setLayout(null);
 
-        ret.setText("Return");
-        jPanel1.add(ret);
-        ret.setBounds(160, 240, 65, 23);
+        jPanel3.setBackground(new java.awt.Color(153, 0, 0));
+        jPanel3.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        table.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null}
-            },
-            new String [] {
-                "Title 1", "Title 2", "Title 3", "Title 4"
+        jLabel5.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/male_user_50px.png"))); // NOI18N
+        jPanel3.add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 10, 50, 50));
+
+        jLabel7.setFont(new java.awt.Font("Yu Gothic UI Semibold", 1, 24)); // NOI18N
+        jLabel7.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel7.setText(" Welcome to Library ");
+        jPanel3.add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 10, 850, 50));
+
+        label2.setBackground(new java.awt.Color(0, 0, 0));
+        label2.setFont(new java.awt.Font("Arial", 1, 24)); // NOI18N
+        label2.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        label2.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                label2MouseClicked(evt);
             }
-        ));
-        jScrollPane1.setViewportView(table);
+        });
+        jPanel3.add(label2, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 0, 110, 70));
+
+        jPanel1.add(jPanel3);
+        jPanel3.setBounds(0, 0, 910, 70);
+
+        jPanel2.setBackground(new java.awt.Color(51, 51, 51));
+        jPanel2.setLayout(null);
+
+        jButton3.setBackground(new java.awt.Color(153, 0, 0));
+        jButton3.setText("LOGOUT");
+        jButton3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton3ActionPerformed(evt);
+            }
+        });
+        jPanel2.add(jButton3);
+        jButton3.setBounds(70, 480, 100, 23);
+
+        jPanel6.setBackground(new java.awt.Color(153, 0, 0));
+        jPanel6.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jLabel10.setFont(new java.awt.Font("Yu Gothic UI Semibold", 1, 18)); // NOI18N
+        jLabel10.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel10.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/icons8_Home_26px_2.png"))); // NOI18N
+        jLabel10.setText("Home Page ");
+        jPanel6.add(jLabel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 0, -1, 40));
+
+        jPanel2.add(jPanel6);
+        jPanel6.setBounds(0, 100, 250, 40);
+
+        jLabel1.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
+        jLabel1.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/icons8_Moleskine_26px.png"))); // NOI18N
+        jLabel1.setText("BORROW");
+        jLabel1.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jLabel1MouseClicked(evt);
+            }
+        });
+        jPanel2.add(jLabel1);
+        jLabel1.setBounds(20, 180, 120, 30);
+
+        jLabel2.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
+        jLabel2.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/11zon_resized (1).png"))); // NOI18N
+        jLabel2.setText("RETURN");
+        jLabel2.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jLabel2MouseClicked(evt);
+            }
+        });
+        jPanel2.add(jLabel2);
+        jLabel2.setBounds(20, 230, 100, 30);
+
+        jLabel3.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
+        jLabel3.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/icons8-book-reading-24.png"))); // NOI18N
+        jLabel3.setText("VIEW AVAILABLE BOOKS");
+        jLabel3.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jLabel3MouseClicked(evt);
+            }
+        });
+        jPanel2.add(jLabel3);
+        jLabel3.setBounds(20, 270, 200, 40);
+
+        jLabel4.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
+        jLabel4.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/icons8_Unit_26px.png"))); // NOI18N
+        jLabel4.setText("VIEW BORROWED BOOKS");
+        jLabel4.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jLabel4MouseClicked(evt);
+            }
+        });
+        jPanel2.add(jLabel4);
+        jLabel4.setBounds(20, 320, 210, 30);
+
+        jLabel12.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
+        jLabel12.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel12.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/icons8_Contact_26px.png"))); // NOI18N
+        jLabel12.setText("NOTIFICATION");
+        jLabel12.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jLabel12MouseClicked(evt);
+            }
+        });
+        jPanel2.add(jLabel12);
+        jLabel12.setBounds(20, 360, 140, 30);
+
+        jPanel1.add(jPanel2);
+        jPanel2.setBounds(0, 0, 250, 530);
+
+        returningDateLabel.setEditable(false);
+        returningDateLabel.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(153, 0, 0), 5, true));
+        returningDateLabel.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
+        jScrollPane1.setViewportView(returningDateLabel);
 
         jPanel1.add(jScrollPane1);
-        jScrollPane1.setBounds(10, 30, 380, 130);
+        jScrollPane1.setBounds(270, 90, 620, 410);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addGap(1, 1, 1)
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 910, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(jPanel1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 522, javax.swing.GroupLayout.PREFERRED_SIZE)
         );
 
         pack();
+        setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
+
+    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+        LoginForm dash = new LoginForm();
+        dash.setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_jButton3ActionPerformed
+
+    private void jLabel1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel1MouseClicked
+        borrow dash = new borrow();
+        dash.setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_jLabel1MouseClicked
+
+    private void jLabel2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel2MouseClicked
+        returnbook dash = new returnbook();
+        dash.setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_jLabel2MouseClicked
+
+    private void jLabel3MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel3MouseClicked
+        avab dash = new avab();
+        dash.setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_jLabel3MouseClicked
+
+    private void jLabel4MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel4MouseClicked
+        borrowed dash = new borrowed();
+        dash.setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_jLabel4MouseClicked
+
+    private void jLabel12MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel12MouseClicked
+        Notification dash = new Notification();
+        dash.setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_jLabel12MouseClicked
+
+    private void label2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_label2MouseClicked
+
+    }//GEN-LAST:event_label2MouseClicked
 
     /**
      * @param args the command line arguments
@@ -106,9 +304,21 @@ public class Notification extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton jButton3;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel10;
+    private javax.swing.JLabel jLabel12;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel7;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel3;
+    private javax.swing.JPanel jPanel6;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JButton ret;
-    private javax.swing.JTable table;
+    public javax.swing.JLabel label2;
+    private javax.swing.JTextPane returningDateLabel;
     // End of variables declaration//GEN-END:variables
 }

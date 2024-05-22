@@ -26,6 +26,7 @@ public class remove extends javax.swing.JFrame {
      */
     public remove() {
         initComponents();
+        setTitle("LIBRARY");
           displayData();
     }
     
@@ -278,22 +279,22 @@ public class remove extends javax.swing.JFrame {
             String searchTerm = searchs.getText().trim();
             if (!searchTerm.isEmpty() && !searchTerm.equals("Input Here")) {
                 Connection connection = display.getConnection();
-                if (connection != null) {
+            if (connection != null) {
                     String query = "SELECT book_id, book_name, author, Publisher, Status, quantity FROM books WHERE book_id LIKE ? OR book_name LIKE ? OR author LIKE ? OR Publisher LIKE ? OR Status LIKE ? OR quantity LIKE ?";
                     PreparedStatement pstmt = connection.prepareStatement(query);
                     String likeTerm = "%" + searchTerm + "%";
-                    for (int i = 1; i <= 6; i++) {
-                        pstmt.setString(i, likeTerm);
+            for (int i = 1; i <= 6; i++) {
+                    pstmt.setString(i, likeTerm);
                     }
                     ResultSet rs = pstmt.executeQuery();
 
-                    if (rs != null) {
-                        table.setModel(DbUtils.resultSetToTableModel(rs));
-                        rs.close();
-                    } else {
-                        JOptionPane.showMessageDialog(this, "No matching books found.");
+            if (rs != null) {
+                    table.setModel(DbUtils.resultSetToTableModel(rs));
+                    rs.close();
+            } else {
+                    JOptionPane.showMessageDialog(this, "No matching books found.");
                     }
-                } else {
+            } else {
                     JOptionPane.showMessageDialog(this, "Failed to establish a connection to the database.");
                 }
             } else {

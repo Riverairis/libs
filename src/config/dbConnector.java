@@ -31,14 +31,14 @@ public class dbConnector {
         return connect;
     }
 
-    //Function to retrieve data
+    // Function to retrieve data
     public ResultSet getData(String sql) throws SQLException {
         PreparedStatement pstmt = connect.prepareStatement(sql);
         ResultSet rs = pstmt.executeQuery();
         return rs;
     }
 
-    //Function to save data
+    // Function to save data
     public boolean insertData(String sql) {
         try {
             PreparedStatement pstmt = connect.prepareStatement(sql);
@@ -52,7 +52,7 @@ public class dbConnector {
         }
     }
 
-    //Function to insert data
+    // Function to insert data
     public int insert(String sql) {
         int result;
         try {
@@ -68,7 +68,7 @@ public class dbConnector {
         return result;
     }
 
-    //Function to update data
+    // Function to update data
     public void updatedata(String sql) {
         try {
             PreparedStatement pstmt = connect.prepareStatement(sql);
@@ -76,8 +76,9 @@ public class dbConnector {
             if (rowsUpdated > 0) {
                 JOptionPane.showMessageDialog(null, "Data Updated Successfully!");
             } else {
-                System.out.println("Data Updated Failed!");
+                System.out.println("Data Update Failed!");
             }
+            pstmt.close();
         } catch (SQLException ex) {
             System.out.println("Connection Error: " + ex);
         }

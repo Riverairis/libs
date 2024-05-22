@@ -8,10 +8,17 @@ package user;
 import config.Session;
 import config.display;
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
@@ -31,6 +38,7 @@ public class borrow extends javax.swing.JFrame {
      */
     public borrow() {
         initComponents();
+        setTitle("LIBRARY");
         displayData();
     }
 
@@ -38,79 +46,60 @@ public class borrow extends javax.swing.JFrame {
     try {
         Session sess = Session.getInstance();
         int userID = sess.getId();
-
         Connection connection = display.getConnection();
-        if (connection != null) {
-            // Select all attributes from the books table and order by book_id
-            String query = "SELECT * FROM books ORDER BY book_id";
-            ResultSet rsBooks = connection.createStatement().executeQuery(query);
-
-            // Create a map to store book status
-            Map<String, String> bookStatusMap = new HashMap<>();
-
-            // Initialize book status from the books table
-            while (rsBooks.next()) {
-                String bookID = rsBooks.getString("book_id");
-                String status = rsBooks.getInt("Quantity") > 0 ? "Available" : "Out of Stock";
-                bookStatusMap.put(bookID, status);
-            }
-
-            rsBooks.close();
-
-            // Select the borrowed books for the logged-in user
-            query = "SELECT book_id FROM borrowings WHERE u_id = ?";
-            PreparedStatement pstmtBorrowed = connection.prepareStatement(query);
-            pstmtBorrowed.setInt(1, userID);
-            ResultSet rsBorrowed = pstmtBorrowed.executeQuery();
-
-            // Update book status from the borrowings table
-            while (rsBorrowed.next()) {
-                String bookID = rsBorrowed.getString("book_id");
-                bookStatusMap.put(bookID, "Borrowed");
-            }
-
-            rsBorrowed.close();
-            pstmtBorrowed.close();
-
-            // Populate table with book details and statuses
-            DefaultTableModel model = new DefaultTableModel();
-            model.addColumn("Book ID");
-            model.addColumn("Book Name");
-            model.addColumn("Author");
-            model.addColumn("Status");
-
-            for (Map.Entry<String, String> entry : bookStatusMap.entrySet()) {
-                String bookID = entry.getKey();
-                String status = entry.getValue();
-
-                query = "SELECT * FROM books WHERE book_id = ?";
-                PreparedStatement pstmtBookDetails = connection.prepareStatement(query);
-                pstmtBookDetails.setString(1, bookID);
-                ResultSet rsBookDetails = pstmtBookDetails.executeQuery();
-
-                if (rsBookDetails.next()) {
-                    Object[] rowData = new Object[4];
-                    rowData[0] = rsBookDetails.getString("book_id");
-                    rowData[1] = rsBookDetails.getString("book_name");
-                    rowData[2] = rsBookDetails.getString("author");
-                    rowData[3] = status;
-                    model.addRow(rowData);
-                }
-
-                rsBookDetails.close();
-                pstmtBookDetails.close();
-            }
-
-            table.setModel(model);
-
-        } else {
+        if (connection == null) {
             JOptionPane.showMessageDialog(this, "Failed to establish a connection to the database.");
+            return;
         }
+
+        String query = "SELECT book_id, book_name, author, Quantity FROM books ORDER BY book_id";
+        ResultSet rsBooks = connection.createStatement().executeQuery(query);
+
+        Map<String, String> bookStatusMap = new HashMap<>();
+        while (rsBooks.next()) {
+            String bookID = rsBooks.getString("book_id");
+            bookStatusMap.put(bookID, rsBooks.getInt("Quantity") > 0 ? "Available" : "Out of Stock");
+        }
+        rsBooks.close();
+
+        query = "SELECT book_id FROM borrowings WHERE u_id = ?";
+        PreparedStatement pstmtBorrowed = connection.prepareStatement(query);
+        pstmtBorrowed.setInt(1, userID);
+        ResultSet rsBorrowed = pstmtBorrowed.executeQuery();
+        while (rsBorrowed.next()) {
+            bookStatusMap.put(rsBorrowed.getString("book_id"), "Borrowed");
+        }
+        rsBorrowed.close();
+        pstmtBorrowed.close();
+
+        DefaultTableModel model = new DefaultTableModel(new String[]{"Book ID", "Book Name", "Author", "Status"}, 0);
+        List<String> sortedBookIDs = new ArrayList<>(bookStatusMap.keySet());
+        Collections.sort(sortedBookIDs, Comparator.comparingInt(Integer::parseInt));
+
+        PreparedStatement pstmtBookDetails = connection.prepareStatement("SELECT * FROM books WHERE book_id = ?");
+        for (String bookID : sortedBookIDs) {
+            pstmtBookDetails.setString(1, bookID);
+            ResultSet rsBookDetails = pstmtBookDetails.executeQuery();
+            if (rsBookDetails.next()) {
+                model.addRow(new Object[]{
+                    rsBookDetails.getString("book_id"),
+                    rsBookDetails.getString("book_name"),
+                    rsBookDetails.getString("author"),
+                    bookStatusMap.get(bookID)
+                });
+            }
+            rsBookDetails.close();
+        }
+        pstmtBookDetails.close();
+
+        table.setModel(model);
     } catch (SQLException ex) {
         JOptionPane.showMessageDialog(this, "Error fetching data from database: " + ex.getMessage());
         ex.printStackTrace();
     }
 }
+
+
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -131,6 +120,8 @@ public class borrow extends javax.swing.JFrame {
         jLabel1 = new javax.swing.JLabel();
         borrow = new javax.swing.JButton();
         row = new javax.swing.JTextField();
+        jLabel2 = new javax.swing.JLabel();
+        jTextField1 = new javax.swing.JTextField();
         jScrollPane1 = new javax.swing.JScrollPane();
         table = new javax.swing.JTable();
         searchs = new javax.swing.JTextField();
@@ -189,7 +180,7 @@ public class borrow extends javax.swing.JFrame {
         jLabel1.setForeground(new java.awt.Color(255, 255, 255));
         jLabel1.setText("Enter Book ID to Borrow");
         jPanel4.add(jLabel1);
-        jLabel1.setBounds(20, 220, 170, 30);
+        jLabel1.setBounds(20, 200, 170, 30);
 
         borrow.setBackground(new java.awt.Color(153, 0, 0));
         borrow.setText("BORROW");
@@ -199,12 +190,23 @@ public class borrow extends javax.swing.JFrame {
             }
         });
         jPanel4.add(borrow);
-        borrow.setBounds(70, 460, 90, 30);
+        borrow.setBounds(80, 460, 90, 30);
 
         row.setBackground(new java.awt.Color(51, 51, 51));
         row.setForeground(new java.awt.Color(255, 255, 255));
         jPanel4.add(row);
-        row.setBounds(20, 260, 210, 30);
+        row.setBounds(20, 230, 210, 30);
+
+        jLabel2.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        jLabel2.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel2.setText("Enter Date to Return(YYYY-MM-DD)");
+        jPanel4.add(jLabel2);
+        jLabel2.setBounds(20, 270, 221, 30);
+
+        jTextField1.setBackground(new java.awt.Color(51, 51, 51));
+        jTextField1.setForeground(new java.awt.Color(255, 255, 255));
+        jPanel4.add(jTextField1);
+        jTextField1.setBounds(20, 300, 210, 30);
 
         jPanel3.add(jPanel4);
         jPanel4.setBounds(0, 0, 250, 510);
@@ -269,64 +271,95 @@ public class borrow extends javax.swing.JFrame {
     }//GEN-LAST:event_jLabel5MouseClicked
 
     private void borrowActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_borrowActionPerformed
-     try {
+      try {
         String bookID = row.getText().trim();
-        
-        if (bookID.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Please enter a book ID to borrow.");
+        String returnDateString = jTextField1.getText().trim();
+
+        if (bookID.isEmpty() || returnDateString.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please enter both book ID and return date.");
             return;
         }
-        
+        if (!isValidDateFormat(returnDateString)) {
+            JOptionPane.showMessageDialog(this, "Please enter the return date in yyyy-mm-dd format.");
+            return;
+        }
+
+        LocalDate returnDate = LocalDate.parse(returnDateString, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        LocalDate currentDate = LocalDate.now();
+
+        if (returnDate.isBefore(currentDate)) {
+            JOptionPane.showMessageDialog(this, "Return date cannot be in the past.");
+            return;
+        }
+
         Connection connection = display.getConnection();
-        PreparedStatement pstmt = connection.prepareStatement("SELECT * FROM books WHERE book_id = ?");
+
+        Session sess = Session.getInstance();
+        int userID = sess.getId();
+
+        PreparedStatement checkStmt = connection.prepareStatement("SELECT COUNT(*) FROM borrowings WHERE book_id = ? AND u_id = ? AND status = 'Borrowed'");
+        checkStmt.setString(1, bookID);
+        checkStmt.setInt(2, userID);
+        ResultSet checkRs = checkStmt.executeQuery();
+
+        if (checkRs.next() && checkRs.getInt(1) > 0) {
+            JOptionPane.showMessageDialog(this, "You have already borrowed this book!.");
+            return;
+        }
+
+        PreparedStatement pstmt = connection.prepareStatement("SELECT Quantity FROM books WHERE book_id = ?");
         pstmt.setString(1, bookID);
         ResultSet rs = pstmt.executeQuery();
-        
+
         if (!rs.next()) {
             JOptionPane.showMessageDialog(this, "Book with ID " + bookID + " does not exist.");
             return;
         }
-        
-        String status = rs.getString("Status");
-        int availableCopies = rs.getInt("Quantity"); // Assuming there's a column for available copies named "Quantity"
-        
-        // No need to check if the book is available, allow borrowing regardless
-        
-        Session sess = Session.getInstance();
-        int userID = sess.getId();
-        
-        if (availableCopies <= 0) {
+        if (rs.getInt("Quantity") <= 0) {
             JOptionPane.showMessageDialog(this, "No more copies available for borrowing.");
             return;
         }
-        
-        pstmt = connection.prepareStatement("INSERT INTO borrowings (book_id, u_id, status) VALUES (?, ?, 'Borrowed')");
+
+        pstmt = connection.prepareStatement("INSERT INTO borrowings (book_id, u_id, status, return_date) VALUES (?, ?, ?, ?)");
         pstmt.setString(1, bookID);
         pstmt.setInt(2, userID);
-        int rowsInserted = pstmt.executeUpdate();
-        
-        if (rowsInserted > 0) {
-            // Update the quantity of available copies in the books table
-            PreparedStatement updateStmt = connection.prepareStatement("UPDATE books SET Quantity = Quantity - 1 WHERE book_id = ?");
-            updateStmt.setString(1, bookID);
-            int rowsAffected = updateStmt.executeUpdate();
-            
-            if (rowsAffected > 0) {
+        pstmt.setString(3, "Borrowed");
+        pstmt.setString(4, returnDateString);
+
+        if (pstmt.executeUpdate() > 0) {
+            pstmt = connection.prepareStatement("UPDATE books SET Quantity = Quantity - 1 WHERE book_id = ?");
+            pstmt.setString(1, bookID);
+            if (pstmt.executeUpdate() > 0) {
                 JOptionPane.showMessageDialog(this, "Book borrowed successfully.");
-                displayData(); 
+                displayData();
+                row.setText("");
+                jTextField1.setText("");
             } else {
-                JOptionPane.showMessageDialog(this, "Failed to borrow the book.");
+                JOptionPane.showMessageDialog(this, "Failed to update book quantity.");
             }
         } else {
             JOptionPane.showMessageDialog(this, "Failed to borrow the book.");
         }
-        
+
+        checkRs.close();
+        checkStmt.close();
+        rs.close();
+        pstmt.close();
     } catch (SQLException ex) {
         JOptionPane.showMessageDialog(this, "Error borrowing book: " + ex.getMessage());
         ex.printStackTrace();
-    }    
+    }
     }//GEN-LAST:event_borrowActionPerformed
-
+    
+    private boolean isValidDateFormat(String date) {
+        try {
+            Date.valueOf(date);
+            return true;
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
+    }
+    
     private void label2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_label2MouseClicked
 
     }//GEN-LAST:event_label2MouseClicked
@@ -427,6 +460,7 @@ public class borrow extends javax.swing.JFrame {
     private javax.swing.JButton borrow;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel11;
+    private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel7;
@@ -436,6 +470,7 @@ public class borrow extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel5;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JSeparator jSeparator1;
+    private javax.swing.JTextField jTextField1;
     public javax.swing.JLabel label2;
     private javax.swing.JTextField row;
     private javax.swing.JTextField searchs;

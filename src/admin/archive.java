@@ -9,7 +9,6 @@ import config.dbConnector;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import javax.swing.JOptionPane;
-import javax.swing.table.TableModel;
 import net.proteanit.sql.DbUtils;
 
 /**
@@ -23,26 +22,23 @@ public class archive extends javax.swing.JFrame {
      */
     public archive() {
         initComponents();
-        
-        displayData();
-        
+        setTitle("LIBRARY");        
+        displayData();       
     }
     
-   
     
     public void displayData(){
         try{
             dbConnector dbc = new dbConnector();
-            ResultSet rs = dbc.getData("SELECT * FROM archive");
+            ResultSet rs = dbc.getData("SELECT * FROM tbl WHERE u_status = 'Archived'");
             table.setModel(DbUtils.resultSetToTableModel(rs));
             rs.close();
         }catch(SQLException ex){
-                    System.out.println("Can't connect to database: "+ex.getMessage());
-            }
+            System.out.println("Can't connect to database: " + ex.getMessage());
+        }
     }
     
     
-     public String Action;
     
     /**
      * This method is called from within the constructor to initialize the form.
@@ -57,6 +53,7 @@ public class archive extends javax.swing.JFrame {
         search = new javax.swing.JTextField();
         jScrollPane2 = new javax.swing.JScrollPane();
         table = new javax.swing.JTable();
+        delete = new javax.swing.JButton();
         jPanel5 = new javax.swing.JPanel();
         label1 = new javax.swing.JLabel();
         jLabel1 = new javax.swing.JLabel();
@@ -86,6 +83,18 @@ public class archive extends javax.swing.JFrame {
         jPanel1.add(jScrollPane2);
         jScrollPane2.setBounds(10, 120, 890, 370);
 
+        delete.setBackground(new java.awt.Color(153, 0, 0));
+        delete.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        delete.setForeground(new java.awt.Color(255, 255, 255));
+        delete.setText("DELETE");
+        delete.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                deleteActionPerformed(evt);
+            }
+        });
+        jPanel1.add(delete);
+        delete.setBounds(10, 80, 80, 30);
+
         jPanel5.setBackground(new java.awt.Color(153, 0, 0));
         jPanel5.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
@@ -101,8 +110,8 @@ public class archive extends javax.swing.JFrame {
 
         jLabel1.setFont(new java.awt.Font("Tahoma", 1, 36)); // NOI18N
         jLabel1.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel1.setText("USERS FORM");
-        jPanel5.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 0, 250, 70));
+        jLabel1.setText("ARCHIVE FORM");
+        jPanel5.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 0, 310, 70));
 
         jLabel2.setFont(new java.awt.Font("Tahoma", 1, 30)); // NOI18N
         jLabel2.setForeground(new java.awt.Color(255, 255, 255));
@@ -149,7 +158,7 @@ public class archive extends javax.swing.JFrame {
             }
         });
         jPanel1.add(restore);
-        restore.setBounds(10, 83, 100, 30);
+        restore.setBounds(100, 80, 90, 30);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -166,8 +175,34 @@ public class archive extends javax.swing.JFrame {
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
+    private void deleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteActionPerformed
+        int row = table.getSelectedRow();
+    if (row >= 0) {
+        int id = (int) table.getValueAt(row, 0);
+        int confirm = JOptionPane.showConfirmDialog(this, "Are you sure you want to delete this record permanently?", "Delete", JOptionPane.YES_NO_OPTION);
+        if (confirm == JOptionPane.YES_OPTION) {
+            try {
+                dbConnector dbc = new dbConnector();
+                
+                String deleteBorrowingsQuery = "DELETE FROM borrowings WHERE u_id = " + id;
+                dbc.updateData(deleteBorrowingsQuery);
+                
+                String deleteTblQuery = "DELETE FROM tbl WHERE u_id = " + id;
+                dbc.updateData(deleteTblQuery);
+                
+                JOptionPane.showMessageDialog(this, "Record deleted successfully.");
+                displayData();
+            } catch (SQLException ex) {
+                System.out.println("Error deleting record: " + ex.getMessage());
+            }
+        }
+    } else {
+        JOptionPane.showMessageDialog(this, "Please select a record to delete.");
+    }
+    }//GEN-LAST:event_deleteActionPerformed
+
     private void jLabel2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel2MouseClicked
-        viewusers dash = new viewusers();
+        admindashboard dash = new admindashboard();
         dash.setVisible(true);
         this.dispose();
     }//GEN-LAST:event_jLabel2MouseClicked
@@ -182,9 +217,8 @@ public class archive extends javax.swing.JFrame {
 
     private void jLabel3MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel3MouseClicked
          String query = search.getText();
-    String searchQuery = "SELECT * FROM tbl WHERE u_username LIKE '%" + query + "%' OR u_fname LIKE '%" + query + "%' OR u_lname LIKE '%" + query + "%'OR u_status LIKE '%" + query + "%'OR u_type LIKE '%" + query +"'";
-    
-    
+        String searchQuery = "SELECT * FROM tbl WHERE u_username LIKE '%" + query + "%' OR u_fname LIKE '%" + query + "%' OR u_lname LIKE '%" + query + "%'OR u_status LIKE '%" + query + "%'OR u_type LIKE '%" + query +"'";
+       
     if (query.matches("\\d+")) {
         searchQuery = "SELECT * FROM tbl WHERE u_id = " + query;
     }
@@ -203,29 +237,20 @@ public class archive extends javax.swing.JFrame {
     }//GEN-LAST:event_jLabel4MouseClicked
 
     private void restoreActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_restoreActionPerformed
-        int rowindex = table.getSelectedRow();
-    if (rowindex < 0) {
-        JOptionPane.showMessageDialog(null, "Please Select an item!");
-    } else {
-        int confirm = JOptionPane.showConfirmDialog(null, "Are you sure you want to restore this user?", "Confirm Restoration", JOptionPane.YES_NO_OPTION);
-        if (confirm == JOptionPane.YES_OPTION) {
+         int row = table.getSelectedRow();
+        if (row >= 0) {
+            int id = (int) table.getValueAt(row, 0); 
             try {
                 dbConnector dbc = new dbConnector();
-                TableModel model = table.getModel();
-                String id = model.getValueAt(rowindex, 0).toString(); 
-
-                dbc.updateData("INSERT INTO tbl SELECT * FROM archive WHERE u_id = '" + id + "'");
-
-                dbc.updateData("DELETE FROM archive WHERE u_id = '" + id + "'");
-
-                displayData(); 
-                JOptionPane.showMessageDialog(null, "User restored successfully!");
-            } catch(SQLException ex) {
-                System.out.println("Error restoring user: " + ex.getMessage());
-                JOptionPane.showMessageDialog(null, "Error restoring user!");
+                dbc.updateData("UPDATE tbl SET u_status = 'Active' WHERE u_id = " + id);
+                JOptionPane.showMessageDialog(this, "Record restored successfully.");
+                displayData();
+            } catch (SQLException ex) {
+                System.out.println("Error restoring record: " + ex.getMessage());
             }
+        } else {
+            JOptionPane.showMessageDialog(this, "Please select a record to restore.");
         }
-    }
     }//GEN-LAST:event_restoreActionPerformed
 
     /**
@@ -265,6 +290,7 @@ public class archive extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton delete;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;

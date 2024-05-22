@@ -9,6 +9,7 @@ import config.Session;
 import config.dbConnector;
 import config.passwordHasher;
 import java.security.NoSuchAlgorithmException;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import javax.swing.JOptionPane;
@@ -26,6 +27,7 @@ public class changepass extends javax.swing.JFrame {
      */
     public changepass() {
         initComponents();
+        setTitle("LIBRARY");
     }
     
    
@@ -200,22 +202,27 @@ public class changepass extends javax.swing.JFrame {
         dbConnector dbc = new dbConnector();
         Session sess = Session.getInstance();
         
-        String query = "SELECT * FROM tbl WHERE u_id = '" + sess.getId() + "'";
-        ResultSet rs = dbc.getData(query);
+        String query = "SELECT * FROM tbl WHERE u_id = ?"; 
+        PreparedStatement pstmt = dbc.getConnection().prepareStatement(query);
+        pstmt.setInt(1, sess.getId());
+        ResultSet rs = pstmt.executeQuery();
         
         if (rs.next()) {
             String olddbpass = rs.getString("u_password");
             String oldhash = passwordHasher.hashPassword(old.getText());
             String newpass = passwordHasher.hashPassword(newp.getText());
             
-           
             if (olddbpass.equals(oldhash)) {
-                
                 if (olddbpass.equals(newpass)) {
                     JOptionPane.showMessageDialog(null, "Old and new passwords cannot be the same!");
                 } else {
-                   
-                    dbc.updateData("UPDATE tbl SET u_password = '" + newpass + "'");
+
+                    String updateQuery = "UPDATE tbl SET u_password = ? WHERE u_id = ?";
+                    PreparedStatement updateStmt = dbc.getConnection().prepareStatement(updateQuery);
+                    updateStmt.setString(1, newpass);
+                    updateStmt.setInt(2, sess.getId());
+                    updateStmt.executeUpdate();
+                    
                     JOptionPane.showMessageDialog(null, "Successfully Updated!");
                     LoginForm lg = new LoginForm();
                     lg.setVisible(true);

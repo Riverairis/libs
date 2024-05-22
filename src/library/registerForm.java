@@ -8,10 +8,10 @@ package library;
 import config.dbConnector;
 import config.passwordHasher;
 import java.security.NoSuchAlgorithmException;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.regex.Pattern;
 import javax.swing.JOptionPane;
 
 /**
@@ -25,38 +25,68 @@ public class registerForm extends javax.swing.JFrame {
      */
     public registerForm() {
         initComponents();
+        setTitle("LIBRARY");
     }
+    
     
     public static String email,uname;
     
-    public boolean duplicateCheck(){
-        dbConnector dbc = new dbConnector();
-        
-        try{
-             String query = "SELECT * FROM tbl WHERE u_username = '" + us.getText() + "' OR u_email = '" +em.getText()+ "'" ;
-        ResultSet resultSet = dbc.getData(query);
-        
-        if(resultSet.next()){
+    public boolean duplicateCheck() {
+    dbConnector dbc = new dbConnector();
+
+    try {
+        String query = "SELECT * FROM tbl WHERE u_username = ? OR u_email = ?";
+        PreparedStatement pstmt = dbc.getConnection().prepareStatement(query);
+        pstmt.setString(1, us.getText());
+        pstmt.setString(2, em.getText());
+        ResultSet resultSet = pstmt.executeQuery();
+
+        boolean emailExists = false;
+        boolean usernameExists = false;
+
+        while (resultSet.next()) {
             email = resultSet.getString("u_email");
-            if (email.equals(em.getText())) {
-                JOptionPane.showMessageDialog(null, "Email already exists! Please use a different one.");   
-                em.setText("");
-            }
             uname = resultSet.getString("u_username");
-            if (uname.equals(us.getText())) {
-                JOptionPane.showMessageDialog(null, "Username already exists! Please choose a different one."); 
-                 us.setText("");
+
+            if (email.equals(em.getText())) {
+                emailExists = true;
             }
-            return true;
-        }else{
-            return false;
+            if (uname.equals(us.getText())) {
+                usernameExists = true;
+            }
         }
-        
-        } catch (SQLException ex) {
-            System.out.println(""+ex);
+
+        if (emailExists) {
+            JOptionPane.showMessageDialog(null, "Email already exists! Please use a different one.");
+            em.setText("");
+        }
+
+        if (usernameExists) {
+            JOptionPane.showMessageDialog(null, "Username already exists! Please choose a different one.");
+            us.setText("");
+        }
+
+        return emailExists || usernameExists;
+
+    } catch (SQLException ex) {
+        System.out.println("" + ex);
         return false;
-        }
     }
+}
+
+
+        private boolean isValidEmail(String email) {
+            String emailRegex = "^[a-zA-Z0-9_+&*-]+(?:\\." +
+                                "[a-zA-Z0-9_+&*-]+)*@" +
+                                "(?:[a-zA-Z0-9-]+\\.)+[a-z" +
+                                "A-Z]{2,7}$";
+
+            Pattern pat = Pattern.compile(emailRegex);
+            if (email == null)
+                return false;
+            return pat.matcher(email).matches();
+        }
+
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -67,6 +97,7 @@ public class registerForm extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        jPanel2 = new javax.swing.JPanel();
         jPanel1 = new javax.swing.JPanel();
         first = new javax.swing.JLabel();
         last = new javax.swing.JLabel();
@@ -90,7 +121,6 @@ public class registerForm extends javax.swing.JFrame {
         jSeparator7 = new javax.swing.JSeparator();
         jSeparator8 = new javax.swing.JSeparator();
         jSeparator9 = new javax.swing.JSeparator();
-        jPanel2 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
         jLabel15 = new javax.swing.JLabel();
@@ -98,6 +128,9 @@ public class registerForm extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setPreferredSize(new java.awt.Dimension(900, 570));
         getContentPane().setLayout(null);
+
+        jPanel2.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel2.setLayout(null);
 
         jPanel1.setBackground(new java.awt.Color(153, 0, 0));
         jPanel1.setMinimumSize(new java.awt.Dimension(910, 560));
@@ -107,27 +140,27 @@ public class registerForm extends javax.swing.JFrame {
         first.setFont(new java.awt.Font("Arial", 0, 16)); // NOI18N
         first.setText("First Name:");
         jPanel1.add(first);
-        first.setBounds(50, 10, 81, 30);
+        first.setBounds(40, 10, 81, 30);
 
         last.setFont(new java.awt.Font("Arial", 0, 16)); // NOI18N
         last.setText("Last Name:");
         jPanel1.add(last);
-        last.setBounds(50, 80, 80, 30);
+        last.setBounds(40, 80, 80, 30);
 
         mail.setFont(new java.awt.Font("Arial", 0, 16)); // NOI18N
         mail.setText("Email:");
         jPanel1.add(mail);
-        mail.setBounds(50, 150, 44, 30);
+        mail.setBounds(40, 150, 44, 30);
 
         nam.setFont(new java.awt.Font("Arial", 0, 16)); // NOI18N
         nam.setText("Username:");
         jPanel1.add(nam);
-        nam.setBounds(50, 290, 76, 30);
+        nam.setBounds(40, 290, 76, 30);
 
         pas.setFont(new java.awt.Font("Arial", 0, 16)); // NOI18N
         pas.setText("Password:");
         jPanel1.add(pas);
-        pas.setBounds(50, 360, 74, 30);
+        pas.setBounds(40, 360, 74, 30);
 
         jButton1.setBackground(new java.awt.Color(153, 0, 0));
         jButton1.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
@@ -138,51 +171,51 @@ public class registerForm extends javax.swing.JFrame {
             }
         });
         jPanel1.add(jButton1);
-        jButton1.setBounds(50, 480, 110, 30);
+        jButton1.setBounds(40, 480, 110, 30);
 
         jLabel2.setFont(new java.awt.Font("Arial", 0, 16)); // NOI18N
         jLabel2.setText("Type: ");
         jPanel1.add(jLabel2);
-        jLabel2.setBounds(50, 430, 50, 30);
+        jLabel2.setBounds(40, 430, 50, 30);
 
         type.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Admin", "User" }));
         jPanel1.add(type);
-        type.setBounds(110, 430, 210, 30);
+        type.setBounds(100, 430, 210, 30);
 
         ln.setBackground(new java.awt.Color(153, 0, 0));
         ln.setBorder(null);
         jPanel1.add(ln);
-        ln.setBounds(50, 110, 270, 30);
+        ln.setBounds(40, 110, 270, 30);
 
         em.setBackground(new java.awt.Color(153, 0, 0));
         em.setBorder(null);
         jPanel1.add(em);
-        em.setBounds(50, 180, 270, 30);
+        em.setBounds(40, 180, 270, 30);
 
         us.setBackground(new java.awt.Color(153, 0, 0));
         us.setBorder(null);
         jPanel1.add(us);
-        us.setBounds(50, 320, 270, 30);
+        us.setBounds(40, 320, 270, 30);
 
         fn.setBackground(new java.awt.Color(153, 0, 0));
         fn.setBorder(null);
         jPanel1.add(fn);
-        fn.setBounds(50, 40, 270, 30);
+        fn.setBounds(40, 40, 270, 30);
 
         ps.setBackground(new java.awt.Color(153, 0, 0));
         ps.setBorder(null);
         jPanel1.add(ps);
-        ps.setBounds(50, 390, 270, 30);
+        ps.setBounds(40, 390, 270, 30);
 
         num.setFont(new java.awt.Font("Arial", 0, 16)); // NOI18N
         num.setText("Number:");
         jPanel1.add(num);
-        num.setBounds(50, 220, 70, 30);
+        num.setBounds(40, 220, 70, 30);
 
         nums.setBackground(new java.awt.Color(153, 0, 0));
         nums.setBorder(null);
         jPanel1.add(nums);
-        nums.setBounds(50, 250, 270, 30);
+        nums.setBounds(40, 250, 270, 30);
 
         jButton2.setBackground(new java.awt.Color(153, 0, 0));
         jButton2.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
@@ -193,90 +226,111 @@ public class registerForm extends javax.swing.JFrame {
             }
         });
         jPanel1.add(jButton2);
-        jButton2.setBounds(210, 480, 110, 30);
+        jButton2.setBounds(200, 480, 110, 30);
 
         jSeparator4.setForeground(new java.awt.Color(255, 255, 255));
         jPanel1.add(jSeparator4);
-        jSeparator4.setBounds(50, 70, 270, 10);
+        jSeparator4.setBounds(40, 70, 270, 10);
 
         jSeparator5.setForeground(new java.awt.Color(255, 255, 255));
         jPanel1.add(jSeparator5);
-        jSeparator5.setBounds(50, 420, 270, 10);
+        jSeparator5.setBounds(40, 420, 270, 10);
 
         jSeparator6.setForeground(new java.awt.Color(255, 255, 255));
         jPanel1.add(jSeparator6);
-        jSeparator6.setBounds(50, 350, 270, 2);
+        jSeparator6.setBounds(40, 350, 270, 2);
 
         jSeparator7.setForeground(new java.awt.Color(255, 255, 255));
         jPanel1.add(jSeparator7);
-        jSeparator7.setBounds(50, 280, 270, 10);
+        jSeparator7.setBounds(40, 280, 270, 10);
 
         jSeparator8.setForeground(new java.awt.Color(255, 255, 255));
         jPanel1.add(jSeparator8);
-        jSeparator8.setBounds(50, 140, 270, 10);
+        jSeparator8.setBounds(40, 140, 270, 10);
 
         jSeparator9.setForeground(new java.awt.Color(255, 255, 255));
         jPanel1.add(jSeparator9);
-        jSeparator9.setBounds(50, 210, 270, 10);
+        jSeparator9.setBounds(40, 210, 270, 10);
 
-        getContentPane().add(jPanel1);
-        jPanel1.setBounds(500, 0, 410, 560);
-
-        jPanel2.setBackground(new java.awt.Color(255, 255, 255));
-        jPanel2.setLayout(null);
+        jPanel2.add(jPanel1);
+        jPanel1.setBounds(540, 0, 370, 540);
 
         jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/main_logo.jpg"))); // NOI18N
         jPanel2.add(jLabel1);
-        jLabel1.setBounds(10, 90, 480, 430);
+        jLabel1.setBounds(30, 90, 490, 430);
 
         jLabel3.setFont(new java.awt.Font("Tw Cen MT Condensed", 1, 24)); // NOI18N
         jLabel3.setText("Welcome to ");
         jPanel2.add(jLabel3);
-        jLabel3.setBounds(180, 10, 103, 26);
+        jLabel3.setBounds(170, 20, 103, 26);
 
         jLabel15.setFont(new java.awt.Font("Tw Cen MT Condensed Extra Bold", 0, 48)); // NOI18N
         jLabel15.setForeground(new java.awt.Color(204, 0, 0));
         jLabel15.setText("LIBRARY");
         jPanel2.add(jLabel15);
-        jLabel15.setBounds(160, 50, 203, 53);
+        jLabel15.setBounds(190, 50, 203, 53);
 
         getContentPane().add(jPanel2);
-        jPanel2.setBounds(0, 0, 500, 560);
+        jPanel2.setBounds(0, 0, 910, 560);
 
         pack();
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+      if (fn.getText().isEmpty() || ln.getText().isEmpty() || em.getText().isEmpty() || us.getText().isEmpty() || ps.getText().isEmpty()) {
+            JOptionPane.showMessageDialog(null, "All fields are required!");
+            return;
+        }
+        if (ps.getText().length() < 8) {
+            JOptionPane.showMessageDialog(null, "Password must have at least 8 characters!");
+            ps.setText("");
+            return;
+        }
+        if (!isValidEmail(em.getText())) {
+            JOptionPane.showMessageDialog(null, "Invalid email format!");
+            em.setText("");
+            return;
+        }
+        if (!integer(nums.getText())) {
+        JOptionPane.showMessageDialog(null, "Number must be an integer!");
+        nums.setText("");
+        return;
+        }
+        if (duplicateCheck()) {
+            return;
+        }
 
-    if (fn.getText().isEmpty() || ln.getText().isEmpty() || em.getText().isEmpty() || us.getText().isEmpty() || ps.getText().isEmpty()) {
-        JOptionPane.showMessageDialog(null, "All fields are required!");
-    } else if (ps.getText().length() < 8) {
-        JOptionPane.showMessageDialog(null, "Password must have at least 8 characters!");
-        ps.setText("");
-    } else if (duplicateCheck()) {
-        System.out.println("Duplicate Exist");
-    } else {
-       
-        dbConnector dbc = new dbConnector();
-        
-       try{
-           String pass = passwordHasher.hashPassword(ps.getText());
-        if(dbc.insertData("INSERT INTO tbl(u_fname, u_lname, u_email, u_username, u_password, Number, u_type, u_status)"
-            + "VALUES ('"+fn.getText()+"','"+ln.getText()+"','"+em.getText()+"','"+us.getText()+"','"+pass+"','"+nums.getText()+"','"+type.getSelectedItem()+"','Pending')")){
-            JOptionPane.showMessageDialog(null, "Registration Success!");
-        } else {
-            JOptionPane.showMessageDialog(null, "Connection Error!");
+        try {
+            dbConnector dbc = new dbConnector();
+            String pass = passwordHasher.hashPassword(ps.getText());
+
+            String query = "INSERT INTO tbl(u_fname, u_lname, u_email, u_username, u_password, Number, u_type, u_image, u_status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            PreparedStatement pstmt = dbc.getConnection().prepareStatement(query);
+            pstmt.setString(1, fn.getText());
+            pstmt.setString(2, ln.getText());
+            pstmt.setString(3, em.getText());
+            pstmt.setString(4, us.getText());
+            pstmt.setString(5, pass);
+            pstmt.setString(6, nums.getText());
+            pstmt.setString(7, type.getSelectedItem().toString());
+            pstmt.setString(8, ""); 
+            pstmt.setString(9, "Pending");
+            int result = pstmt.executeUpdate();
+
+            if (result == 1) {
+                JOptionPane.showMessageDialog(null, "Successfully Registered!");
+            } else {
+                System.out.println("Saving Data Failed!");
+                JOptionPane.showMessageDialog(null, "Registration failed. Please try again.");
+            }
+            LoginForm loginForm = new LoginForm();
+            loginForm.setVisible(true);
+            this.dispose();
+        } catch (NoSuchAlgorithmException | SQLException ex) {
+            System.out.println("Error: " + ex);
+            JOptionPane.showMessageDialog(null, "An error occurred during registration. Please try again.");
         }
-       
-        LoginForm loginForm = new LoginForm();
-        loginForm.setVisible(true);
-        this.dispose();
-       } catch (NoSuchAlgorithmException ex) {
-           System.out.println(""+ex);
-        }
-    }   
-     
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
@@ -284,7 +338,15 @@ public class registerForm extends javax.swing.JFrame {
         loginForm.setVisible(true);
         this.dispose();
     }//GEN-LAST:event_jButton2ActionPerformed
-
+    
+    private boolean integer(String input) {
+    try {
+        Long.parseLong(input);
+        return true;
+    } catch (NumberFormatException e) {
+        return false;
+    }
+}
     
     
     /**

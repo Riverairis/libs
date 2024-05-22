@@ -27,6 +27,7 @@ public class ADD extends javax.swing.JFrame {
      */
     public ADD() {
         initComponents();
+        setTitle("LIBRARY");
           displayData();
     }
     
@@ -87,8 +88,8 @@ public class ADD extends javax.swing.JFrame {
         jLabel10 = new javax.swing.JLabel();
         name = new javax.swing.JTextField();
         jLabel6 = new javax.swing.JLabel();
-        stat = new javax.swing.JTextField();
         jButton1 = new javax.swing.JButton();
+        stat = new javax.swing.JComboBox<>();
         jLabel8 = new javax.swing.JLabel();
         jLabel11 = new javax.swing.JLabel();
         jSeparator1 = new javax.swing.JSeparator();
@@ -211,14 +212,9 @@ public class ADD extends javax.swing.JFrame {
 
         jLabel6.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         jLabel6.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel6.setText("Status (Available/Out of Stock)");
+        jLabel6.setText("Status");
         jPanel4.add(jLabel6);
         jLabel6.setBounds(40, 380, 190, 30);
-
-        stat.setBackground(new java.awt.Color(51, 51, 51));
-        stat.setForeground(new java.awt.Color(255, 255, 255));
-        jPanel4.add(stat);
-        stat.setBounds(40, 410, 210, 30);
 
         jButton1.setBackground(new java.awt.Color(153, 0, 0));
         jButton1.setText("EDIT");
@@ -229,6 +225,10 @@ public class ADD extends javax.swing.JFrame {
         });
         jPanel4.add(jButton1);
         jButton1.setBounds(160, 470, 90, 23);
+
+        stat.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Available", "Out of Stock" }));
+        jPanel4.add(stat);
+        stat.setBounds(40, 410, 210, 30);
 
         jPanel3.add(jPanel4);
         jPanel4.setBounds(0, 0, 280, 510);
@@ -298,49 +298,56 @@ public class ADD extends javax.swing.JFrame {
     String bookName = name.getText();
     String bookAuthor = author.getText();
     String quantity = quan.getText();
-    String status = stat.getText();
+    String status = (String) stat.getSelectedItem();
     String publisher = pub.getText();
-    
-    if (bookName.isEmpty() || bookAuthor.isEmpty() || quantity.isEmpty() || status.isEmpty() || publisher.isEmpty()) {
-        JOptionPane.showMessageDialog(this, "Please fill in all fields.");
-        return;
-    }
-    try {
-        Connection connection = display.getConnection();
-        if (connection != null) {
-            
-            String query = "INSERT INTO books (book_name, author, Publisher, quantity, Status) VALUES (?, ?, ?, ?, ?)";
-            PreparedStatement pstmt = connection.prepareStatement(query);
-            
-            pstmt.setString(1, bookName);
-            pstmt.setString(2, bookAuthor);
-            pstmt.setString(3, publisher);
-            pstmt.setString(4, quantity);
-            pstmt.setString(5, status);
-            
-            
-            int rowsInserted = pstmt.executeUpdate();
-            if (rowsInserted > 0) {
-                JOptionPane.showMessageDialog(this, "Book added successfully.");
-                
-                displayData();
-                name.setText("");
-                author.setText("");
-                quan.setText("");
-                stat.setText("");
-                pub.setText("");
-            } else {
-                JOptionPane.showMessageDialog(this, "Failed to add book.");
-            }
-            
-            pstmt.close();
-        } else {
-            JOptionPane.showMessageDialog(this, "Failed to establish a connection to the database.");
+
+        if (bookName.isEmpty() || bookAuthor.isEmpty() || quantity.isEmpty() || status.isEmpty() || publisher.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please fill in all fields.");
+            return;
         }
-    } catch (SQLException ex) {
-        JOptionPane.showMessageDialog(this, "Error adding book to database: " + ex.getMessage());
-        ex.printStackTrace();
-    }
+
+       
+        if (!quantity.matches("\\d+")) {
+            JOptionPane.showMessageDialog(this, "Quantity must be a valid number.");
+            quan.setText("");
+            return;
+        }
+
+       
+        try {
+            Connection connection = display.getConnection();
+            if (connection != null) {
+                String query = "INSERT INTO books (book_name, author, Publisher, quantity) VALUES (?, ?, ?, ?)";
+                PreparedStatement pstmt = connection.prepareStatement(query);
+
+                pstmt.setString(1, bookName);
+                pstmt.setString(2, bookAuthor);
+                pstmt.setString(3, publisher);
+                pstmt.setString(4, quantity);
+
+                int rowsInserted = pstmt.executeUpdate();
+                if (rowsInserted > 0) {
+                    JOptionPane.showMessageDialog(this, "Book added successfully.");
+
+                    displayData();
+                    name.setText("");
+                    author.setText("");
+                    quan.setText("");
+                    stat.setSelectedIndex(0);
+                    pub.setText("");
+                } else {
+                    JOptionPane.showMessageDialog(this, "Failed to add book.");
+                }
+
+                pstmt.close();
+            } else {
+                JOptionPane.showMessageDialog(this, "Failed to establish a connection to the database.");
+            }
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(this, "Error adding book to database: " + ex.getMessage());
+            ex.printStackTrace();
+        }
+
     }//GEN-LAST:event_addActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
@@ -355,7 +362,7 @@ public class ADD extends javax.swing.JFrame {
             us.name.setText(""+model.getValueAt(rowIndex, 1));           
             us.author.setText(""+model.getValueAt(rowIndex, 2));
             us.quan.setText(""+model.getValueAt(rowIndex, 5));
-            us.stat.setText(""+model.getValueAt(rowIndex, 4)); 
+            us.stat.setSelectedItem(""+model.getValueAt(rowIndex, 4)); 
             us.pub.setText(""+model.getValueAt(rowIndex, 3));
             us.setVisible(true);
             
@@ -483,7 +490,7 @@ public class ADD extends javax.swing.JFrame {
     private javax.swing.JTextField pub;
     private javax.swing.JTextField quan;
     private javax.swing.JTextField searchs;
-    private javax.swing.JTextField stat;
+    public javax.swing.JComboBox<String> stat;
     private javax.swing.JTable table;
     // End of variables declaration//GEN-END:variables
 }
