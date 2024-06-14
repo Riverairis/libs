@@ -34,10 +34,13 @@ public class borrowed extends javax.swing.JFrame {
     try {
         Session sess = Session.getInstance();
         int userID = sess.getId();
-
+        
         Connection connection = display.getConnection();
         if (connection != null) {
-            String query = "SELECT b.book_id, b.book_name, b.author, br.status FROM books b INNER JOIN borrowings br ON b.book_id = br.book_id WHERE br.u_id = ?";
+            String query = "SELECT b.book_id, b.book_name, b.author, br.status " +
+                           "FROM books b " +
+                           "INNER JOIN borrowings br ON b.book_id = br.book_id " +
+                           "WHERE br.u_id = ? AND br.status IN ('Pending', 'Borrowed')";
             PreparedStatement pstmt = connection.prepareStatement(query);
             pstmt.setInt(1, userID);
             ResultSet rs = pstmt.executeQuery();
@@ -45,7 +48,9 @@ public class borrowed extends javax.swing.JFrame {
             if (rs != null) {
                 table.setModel(DbUtils.resultSetToTableModel(rs));
                 rs.close();
-            } 
+            } else {
+                JOptionPane.showMessageDialog(this, "No data found in the database.");
+            }
             pstmt.close();
         } else {
             JOptionPane.showMessageDialog(this, "Failed to establish a connection to the database.");
@@ -55,6 +60,7 @@ public class borrowed extends javax.swing.JFrame {
         ex.printStackTrace();
     }
 }
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always

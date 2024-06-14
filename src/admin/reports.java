@@ -35,7 +35,7 @@ public class reports extends javax.swing.JFrame {
     
     private void displayTable() {
     try (Connection conn = display.getConnection()) {
-        String query = "SELECT b.book_id, b.book_name, b.author, u.u_fname, br.return_date " +
+        String query = "SELECT b.book_id, b.book_name, b.author, b.isbn, u.u_fname, br.borrow_date, br.return_date " +
                        "FROM books b " +
                        "INNER JOIN borrowings br ON b.book_id = br.book_id " +
                        "INNER JOIN tbl u ON br.u_id = u.u_id";
@@ -46,8 +46,6 @@ public class reports extends javax.swing.JFrame {
         JOptionPane.showMessageDialog(null, "Error loading data: " + e.getMessage());
     }
 }
-
-
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -66,6 +64,10 @@ public class reports extends javax.swing.JFrame {
         table = new javax.swing.JTable();
         jPanel2 = new javax.swing.JPanel();
         print = new javax.swing.JLabel();
+        searchs = new javax.swing.JTextField();
+        jSeparator1 = new javax.swing.JSeparator();
+        jLabel11 = new javax.swing.JLabel();
+        jLabel4 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -116,6 +118,38 @@ public class reports extends javax.swing.JFrame {
         jPanel1.add(jPanel2);
         jPanel2.setBounds(20, 80, 110, 30);
 
+        searchs.setText("Input Here");
+        searchs.setBorder(null);
+        searchs.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                searchsMouseClicked(evt);
+            }
+        });
+        jPanel1.add(searchs);
+        searchs.setBounds(470, 80, 160, 30);
+
+        jSeparator1.setForeground(new java.awt.Color(0, 0, 0));
+        jPanel1.add(jSeparator1);
+        jSeparator1.setBounds(470, 110, 160, 10);
+
+        jLabel11.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/search.png"))); // NOI18N
+        jLabel11.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jLabel11MouseClicked(evt);
+            }
+        });
+        jPanel1.add(jLabel11);
+        jLabel11.setBounds(630, 80, 27, 40);
+
+        jLabel4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/refresh.png"))); // NOI18N
+        jLabel4.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jLabel4MouseClicked(evt);
+            }
+        });
+        jPanel1.add(jLabel4);
+        jLabel4.setBounds(440, 80, 23, 40);
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -140,42 +174,93 @@ public class reports extends javax.swing.JFrame {
     }//GEN-LAST:event_jLabel5MouseClicked
 
     private void printMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_printMouseClicked
-    int rowIndex = table.getSelectedRow();
+     int rowIndex = table.getSelectedRow();
     if (rowIndex < 0) {
         JOptionPane.showMessageDialog(null, "Please Select an item!");
     } else {
         TableModel model = table.getModel();
-        Printing us = new Printing();
-        us.fname.setText(String.valueOf(model.getValueAt(rowIndex, 3))); 
-        us.id.setText(String.valueOf(model.getValueAt(rowIndex, 0)));
-        us.name.setText(String.valueOf(model.getValueAt(rowIndex, 1)));
-        us.author.setText(String.valueOf(model.getValueAt(rowIndex, 2)));
+        if (model.getColumnCount() >= 7) { 
+            Printing us = new Printing();
+            us.id.setText(String.valueOf(model.getValueAt(rowIndex, 0)));         
+            us.name.setText(String.valueOf(model.getValueAt(rowIndex, 1)));      
+            us.author.setText(String.valueOf(model.getValueAt(rowIndex, 2)));     
+            us.isbn.setText(String.valueOf(model.getValueAt(rowIndex, 3)));      
+            us.fname.setText(String.valueOf(model.getValueAt(rowIndex, 4)));      
+            String borrowDateStr = String.valueOf(model.getValueAt(rowIndex, 5)); 
+            String returnDateStr = String.valueOf(model.getValueAt(rowIndex, 6)); 
+            
+            if (returnDateStr != null && !returnDateStr.isEmpty()) {
+                try {
+                    LocalDate returnDate = LocalDate.parse(returnDateStr, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+                    us.returndate.setText(returnDateStr);
 
-        String returnDateStr = String.valueOf(model.getValueAt(rowIndex, 4)); 
-        if (returnDateStr != null && !returnDateStr.isEmpty()) {
-            try {
-                LocalDate returnDate = LocalDate.parse(returnDateStr, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-                us.returndate.setText(returnDateStr);
-
-                LocalDate currentDate = LocalDate.now();
-                if (currentDate.isAfter(returnDate)) {
-                    us.violation.setText("Violation: You didn't return the book by " + returnDateStr + "! Please pay 100 pesos.");
-                } else {
-                    us.violation.setText("");
+                    LocalDate currentDate = LocalDate.now();
+                    if (currentDate.isAfter(returnDate)) {
+                        us.violation.setText("Violation: You didn't return the book by " + returnDateStr + "! Please pay 100 pesos.");
+                    } else {
+                        us.violation.setText("");
+                    }
+                } catch (DateTimeParseException e) {
+                    us.returndate.setText("Invalid Date Format");
+                    us.violation.setText("Violation: Invalid return date format");
                 }
-            } catch (DateTimeParseException e) {
-                us.returndate.setText("Invalid Date Format");
-                us.violation.setText("Violation: Invalid return date format");
+            } else {
+                us.returndate.setText("N/A");
+                us.violation.setText("Violation: No return date available");
             }
-        } else {
-            us.returndate.setText("N/A");
-            us.violation.setText("Violation: No return date available");
-        }
 
-        us.setVisible(true);
-        this.dispose();
+            us.setVisible(true);
+            this.dispose();
+        } else {
+            JOptionPane.showMessageDialog(null, "The selected row does not have all required columns.");
+        }
     }
     }//GEN-LAST:event_printMouseClicked
+
+    private void searchsMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_searchsMouseClicked
+        searchs.setText("");
+    }//GEN-LAST:event_searchsMouseClicked
+
+    private void jLabel11MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel11MouseClicked
+        try {
+            String searchTerm = searchs.getText().trim();
+            if (!searchTerm.isEmpty() && !searchTerm.equals("Input Here")) {
+                Connection connection = display.getConnection();
+                if (connection != null) {
+                    String query = "SELECT b.book_id, b.book_name, b.author, b.isbn, u.u_fname, br.borrow_date, br.return_date " +
+                                   "FROM books b " +
+                                   "INNER JOIN borrowings br ON b.book_id = br.book_id " +
+                                   "INNER JOIN tbl u ON br.u_id = u.u_id " +
+                                   "WHERE b.book_id LIKE ? OR b.isbn LIKE ? OR b.book_name LIKE ? OR b.author LIKE ? OR u.u_fname LIKE ? OR br.borrow_date LIKE ? OR br.return_date LIKE ?";
+                    PreparedStatement pstmt = connection.prepareStatement(query);
+                    String likeTerm = "%" + searchTerm + "%";
+                    for (int i = 1; i <= 7; i++) {
+                        pstmt.setString(i, likeTerm);
+                    }
+                    ResultSet rs = pstmt.executeQuery();
+
+                    if (rs != null) {
+                        table.setModel(DbUtils.resultSetToTableModel(rs));
+                        rs.close();
+                    } else {
+                        JOptionPane.showMessageDialog(this, "No matching records found.");
+                    }
+                    searchs.setText("");
+                } else {
+                    JOptionPane.showMessageDialog(this, "Failed to establish a connection to the database.");
+                }
+            } else {
+                JOptionPane.showMessageDialog(this, "Please enter a search term.");
+            }
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(this, "Error fetching search results: " + ex.getMessage());
+            ex.printStackTrace();
+        }
+    }//GEN-LAST:event_jLabel11MouseClicked
+
+    private void jLabel4MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel4MouseClicked
+        displayTable();
+    }//GEN-LAST:event_jLabel4MouseClicked
 
     /**
      * @param args the command line arguments
@@ -213,13 +298,17 @@ public class reports extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel jLabel11;
+    private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel6;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JSeparator jSeparator1;
     private javax.swing.JLabel print;
+    private javax.swing.JTextField searchs;
     private javax.swing.JTable table;
     // End of variables declaration//GEN-END:variables
 }

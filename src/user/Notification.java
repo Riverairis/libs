@@ -26,39 +26,43 @@ public class Notification extends javax.swing.JFrame {
         displayNotifications();
     }
     
-   private void displayNotifications() {
-    StringBuilder notificationText = new StringBuilder();
+    private void displayNotifications() {
+        StringBuilder notificationText = new StringBuilder();
 
-    Session sess = Session.getInstance();
-    int userID = sess.getId();
+        Session sess = Session.getInstance();
+        int userID = sess.getId();
 
-    List<String[]> notifications = NotificationManager.checkApproachingReturnDates(3, userID); 
-    if (notifications.isEmpty()) {
-        returningDateLabel.setText("\n     No notifications at this time.");
-        return;
+        List<String[]> notifications = NotificationManager.checkApproachingReturnDates(3, userID);
+        if (notifications.isEmpty()) {
+            returningDateLabel.setText("\n   No notifications at this time.");
+            return;
+        }
+
+        for (String[] notification : notifications) {
+            String bookID = notification[0];
+            String returnDateString = notification[1];
+
+            Date returnDate = null;
+            try {
+                returnDate = Date.valueOf(returnDateString);
+            } catch (IllegalArgumentException e) {
+                e.printStackTrace();
+                notificationText.append("\n    Book with ID:").append(bookID).append(" has an invalid return date format. Please check.\n");
+                continue;
+            }
+
+            if (returnDate != null) {
+                notificationText.append("\n    Book with ID:").append(bookID).append(" is due for return on ").append(returnDate).append(". Please return it.\n");
+            } else {
+                notificationText.append("\n    Book with ID:").append(bookID).append(" has an invalid return date. Please check.\n");
+            }
+        }
+        returningDateLabel.setText(notificationText.toString());
     }
 
-    for (String[] notification : notifications) {
-        String bookID = notification[0];
-        String returnDateString = notification[1];
-
-        Date returnDate = null;
-        try {
-            returnDate = Date.valueOf(returnDateString);
-        } catch (IllegalArgumentException e) {
-            e.printStackTrace();
-            notificationText.append("\n     Book with ID:").append(bookID).append(" has an invalid return date format. Please check.\n");
-            continue; 
-        }
-        if (returnDate != null) {
-            notificationText.append("\n     Book with ID:").append(bookID).append(" is due for return on ").append(returnDate).append(". Please return it.\n");
-        } else {
-            notificationText.append("\n     Book with ID:").append(bookID).append(" has an invalid return date. Please check.\n");
-        }
-    }
-    returningDateLabel.setText(notificationText.toString());
-}
-
+     
+    
+     
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -204,8 +208,10 @@ public class Notification extends javax.swing.JFrame {
         jPanel2.setBounds(0, 0, 250, 530);
 
         returningDateLabel.setEditable(false);
-        returningDateLabel.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(153, 0, 0), 5, true));
-        returningDateLabel.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
+        returningDateLabel.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(51, 51, 51), 5));
+        returningDateLabel.setFont(new java.awt.Font("Segoe UI Light", 3, 18)); // NOI18N
+        returningDateLabel.setForeground(new java.awt.Color(153, 0, 0));
+        returningDateLabel.setSelectedTextColor(new java.awt.Color(0, 0, 0));
         jScrollPane1.setViewportView(returningDateLabel);
 
         jPanel1.add(jScrollPane1);

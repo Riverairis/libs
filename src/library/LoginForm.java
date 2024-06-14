@@ -10,6 +10,7 @@ import config.Session;
 import config.dbConnector;
 import config.passwordHasher;
 import java.security.NoSuchAlgorithmException;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import javax.swing.JOptionPane;
@@ -34,41 +35,44 @@ public class LoginForm extends javax.swing.JFrame {
    
     
     private boolean loginAcc(String username, String password) {
-    dbConnector connector = new dbConnector();
-    
-    try {
-       String query = "SELECT * FROM tbl WHERE u_username = '" + username + "'";
-        ResultSet resultSet = connector.getData(query);
+        dbConnector connector = new dbConnector();
         
-        if (resultSet.next()) {
-            String hashedPassFromDB = resultSet.getString("u_password");
-            String hashedPass = passwordHasher.hashPassword(password); 
-            if (hashedPass.equals(hashedPassFromDB)) {
-                status = resultSet.getString("u_status");
-                type = resultSet.getString("u_type");
-                Session sess = Session.getInstance();
-                sess.setId(resultSet.getInt("u_id"));
-                sess.setFname(resultSet.getString("u_fname"));
-                sess.setLname(resultSet.getString("u_lname"));
-                sess.setEmail(resultSet.getString("u_email"));
-                sess.setUsername(resultSet.getString("u_username"));
-                sess.setType(resultSet.getString("u_type"));
-                sess.setStatus(resultSet.getString("u_status"));
+        try {
+            String query = "SELECT * FROM tbl WHERE u_username = ? UNION ALL SELECT * FROM librarian WHERE u_username = ?";
+            PreparedStatement pstmt = connector.getConnection().prepareStatement(query);
+            pstmt.setString(1, username);
+            pstmt.setString(2, username);
+            ResultSet resultSet = pstmt.executeQuery();
+            
+            if (resultSet.next()) {
+                String hashedPassFromDB = resultSet.getString("u_password");
+                String hashedPass = passwordHasher.hashPassword(password);
+                if (hashedPass.equals(hashedPassFromDB)) {
+                    status = resultSet.getString("u_status");
+                    type = resultSet.getString("u_type");
+                    Session sess = Session.getInstance();
+                    sess.setId(resultSet.getInt("u_id"));
+                    sess.setFname(resultSet.getString("u_fname"));
+                    sess.setLname(resultSet.getString("u_lname"));
+                    sess.setEmail(resultSet.getString("u_email"));
+                    sess.setUsername(resultSet.getString("u_username"));
+                    sess.setType(resultSet.getString("u_type"));
+                    sess.setStatus(resultSet.getString("u_status"));
 
-                return true;
-            }else{
-                System.out.println("Password Don't Match!");
+                    return true;
+                } else {
+                    System.out.println("Password Don't Match!");
+                    return false;
+                }
+            } else {
                 return false;
             }
-        }else{
-          return false;  
+            
+        } catch (SQLException | NoSuchAlgorithmException ex) {
+            JOptionPane.showMessageDialog(null, "Database error: " + ex.getMessage());
+            return false;
         }
-        
-    } catch (SQLException | NoSuchAlgorithmException ex) {
-        JOptionPane.showMessageDialog(null, "Database error: " + ex.getMessage());
-        return false;
     }
-}
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -114,13 +118,13 @@ public class LoginForm extends javax.swing.JFrame {
         jLabel2.setFont(new java.awt.Font("Tw Cen MT Condensed", 1, 24)); // NOI18N
         jLabel2.setText("Welcome to ");
         jPanel2.add(jLabel2);
-        jLabel2.setBounds(190, 50, 103, 26);
+        jLabel2.setBounds(150, 50, 103, 26);
 
         jLabel15.setFont(new java.awt.Font("Tw Cen MT Condensed Extra Bold", 0, 48)); // NOI18N
         jLabel15.setForeground(new java.awt.Color(204, 0, 0));
         jLabel15.setText("LIBRARY");
         jPanel2.add(jLabel15);
-        jLabel15.setBounds(170, 90, 203, 53);
+        jLabel15.setBounds(190, 80, 203, 53);
 
         getContentPane().add(jPanel2);
         jPanel2.setBounds(0, 0, 550, 560);

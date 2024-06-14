@@ -8,11 +8,16 @@ package admin;
 
 import config.Session;
 import config.display;
+import java.awt.print.PrinterException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.MessageFormat;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JOptionPane;
+import javax.swing.JTable;
 import javax.swing.table.TableModel;
 import library.LoginForm;
 import net.proteanit.sql.DbUtils;
@@ -32,25 +37,16 @@ public class Viewavab extends javax.swing.JFrame {
         displayData();
     }
     
-     public void displayData() {
+    public void displayData() {
     try {
         Connection connection = display.getConnection();
         if (connection != null) {
-            String query = "SELECT book_id, book_name, author, Publisher, "
-                         + "CASE "
-                         + "    WHEN SUM(quantity) = 0 THEN 'Out of stock' "
-                         + "    ELSE 'Available' "
-                         + "END AS Status, "
-                         + "SUM(quantity) AS quantity "
-                         + "FROM books "
-                         + "GROUP BY book_id, book_name, author, Publisher";
-            PreparedStatement pstmt = connection.prepareStatement(query);
-            ResultSet rs = pstmt.executeQuery();
+            ResultSet rs = connection.createStatement().executeQuery("SELECT book_id, ISBN, book_name, Author, publisher, quantity FROM books");
             if (rs != null) {
                 table.setModel(DbUtils.resultSetToTableModel(rs));
                 rs.close();
             } else {
-                JOptionPane.showMessageDialog(this, "No available books found.");
+                JOptionPane.showMessageDialog(this, "No data found in the database.");
             }
         } else {
             JOptionPane.showMessageDialog(this, "Failed to establish a connection to the database.");
@@ -60,6 +56,7 @@ public class Viewavab extends javax.swing.JFrame {
         ex.printStackTrace();
     }
 }
+
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -88,8 +85,8 @@ public class Viewavab extends javax.swing.JFrame {
         jSeparator1 = new javax.swing.JSeparator();
         jLabel11 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
-        jPanel11 = new javax.swing.JPanel();
-        jButton6 = new javax.swing.JButton();
+        jPanel13 = new javax.swing.JPanel();
+        jButton8 = new javax.swing.JButton();
         jPanel6 = new javax.swing.JPanel();
         jLabel10 = new javax.swing.JLabel();
         jLabel12 = new javax.swing.JLabel();
@@ -97,7 +94,8 @@ public class Viewavab extends javax.swing.JFrame {
         jLabel2 = new javax.swing.JLabel();
         jLabel15 = new javax.swing.JLabel();
         jLabel16 = new javax.swing.JLabel();
-        jLabel9 = new javax.swing.JLabel();
+        jLabel17 = new javax.swing.JLabel();
+        jLabel5 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         addWindowListener(new java.awt.event.WindowAdapter() {
@@ -229,19 +227,19 @@ public class Viewavab extends javax.swing.JFrame {
         jPanel1.add(jLabel4);
         jLabel4.setBounds(670, 80, 23, 40);
 
-        jPanel11.setBackground(new java.awt.Color(51, 51, 51));
-        jPanel11.setForeground(new java.awt.Color(255, 255, 255));
-        jPanel11.setLayout(null);
+        jPanel13.setBackground(new java.awt.Color(51, 51, 51));
+        jPanel13.setForeground(new java.awt.Color(255, 255, 255));
+        jPanel13.setLayout(null);
 
-        jButton6.setBackground(new java.awt.Color(153, 0, 0));
-        jButton6.setText("LOGOUT");
-        jButton6.addActionListener(new java.awt.event.ActionListener() {
+        jButton8.setBackground(new java.awt.Color(153, 0, 0));
+        jButton8.setText("LOGOUT");
+        jButton8.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton6ActionPerformed(evt);
+                jButton8ActionPerformed(evt);
             }
         });
-        jPanel11.add(jButton6);
-        jButton6.setBounds(70, 460, 100, 30);
+        jPanel13.add(jButton8);
+        jButton8.setBounds(70, 460, 100, 30);
 
         jPanel6.setBackground(new java.awt.Color(153, 0, 0));
         jPanel6.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -252,7 +250,7 @@ public class Viewavab extends javax.swing.JFrame {
         jLabel10.setText("DASHBOARD");
         jPanel6.add(jLabel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 0, -1, 40));
 
-        jPanel11.add(jPanel6);
+        jPanel13.add(jPanel6);
         jPanel6.setBounds(0, 100, 250, 40);
 
         jLabel12.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
@@ -264,8 +262,8 @@ public class Viewavab extends javax.swing.JFrame {
                 jLabel12MouseClicked(evt);
             }
         });
-        jPanel11.add(jLabel12);
-        jLabel12.setBounds(20, 170, 130, 30);
+        jPanel13.add(jLabel12);
+        jLabel12.setBounds(20, 160, 130, 30);
 
         jLabel1.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
         jLabel1.setForeground(new java.awt.Color(255, 255, 255));
@@ -276,8 +274,8 @@ public class Viewavab extends javax.swing.JFrame {
                 jLabel1MouseClicked(evt);
             }
         });
-        jPanel11.add(jLabel1);
-        jLabel1.setBounds(20, 210, 160, 30);
+        jPanel13.add(jLabel1);
+        jLabel1.setBounds(20, 200, 160, 30);
 
         jLabel2.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
         jLabel2.setForeground(new java.awt.Color(255, 255, 255));
@@ -288,8 +286,8 @@ public class Viewavab extends javax.swing.JFrame {
                 jLabel2MouseClicked(evt);
             }
         });
-        jPanel11.add(jLabel2);
-        jLabel2.setBounds(20, 250, 220, 30);
+        jPanel13.add(jLabel2);
+        jLabel2.setBounds(20, 240, 220, 30);
 
         jLabel15.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
         jLabel15.setForeground(new java.awt.Color(255, 255, 255));
@@ -300,8 +298,8 @@ public class Viewavab extends javax.swing.JFrame {
                 jLabel15MouseClicked(evt);
             }
         });
-        jPanel11.add(jLabel15);
-        jLabel15.setBounds(20, 290, 120, 30);
+        jPanel13.add(jLabel15);
+        jLabel15.setBounds(20, 320, 120, 30);
 
         jLabel16.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
         jLabel16.setForeground(new java.awt.Color(255, 255, 255));
@@ -312,23 +310,35 @@ public class Viewavab extends javax.swing.JFrame {
                 jLabel16MouseClicked(evt);
             }
         });
-        jPanel11.add(jLabel16);
-        jLabel16.setBounds(20, 370, 150, 30);
+        jPanel13.add(jLabel16);
+        jLabel16.setBounds(20, 400, 150, 30);
 
-        jLabel9.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
-        jLabel9.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel9.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/icons8_Unit_26px.png"))); // NOI18N
-        jLabel9.setText("ARCHIVE");
-        jLabel9.addMouseListener(new java.awt.event.MouseAdapter() {
+        jLabel17.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
+        jLabel17.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel17.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/icons8_Unit_26px.png"))); // NOI18N
+        jLabel17.setText("ARCHIVE");
+        jLabel17.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jLabel9MouseClicked(evt);
+                jLabel17MouseClicked(evt);
             }
         });
-        jPanel11.add(jLabel9);
-        jLabel9.setBounds(20, 330, 130, 30);
+        jPanel13.add(jLabel17);
+        jLabel17.setBounds(20, 360, 130, 30);
 
-        jPanel1.add(jPanel11);
-        jPanel11.setBounds(0, 0, 250, 510);
+        jLabel5.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+        jLabel5.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel5.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/11zon_resized (1).png"))); // NOI18N
+        jLabel5.setText("REQUEST");
+        jLabel5.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jLabel5MouseClicked(evt);
+            }
+        });
+        jPanel13.add(jLabel5);
+        jLabel5.setBounds(20, 280, 100, 30);
+
+        jPanel1.add(jPanel13);
+        jPanel13.setBounds(0, 0, 250, 510);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -374,19 +384,19 @@ public class Viewavab extends javax.swing.JFrame {
     }//GEN-LAST:event_searchsMouseClicked
 
     private void jLabel11MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel11MouseClicked
-         try {
-        String searchTerm = searchs.getText().trim();
-        if (!searchTerm.isEmpty() && !searchTerm.equals("Input Here")) {
-            Connection connection = display.getConnection();
+        try {
+            String searchTerm = searchs.getText().trim();
+            if (!searchTerm.isEmpty() && !searchTerm.equals("Input Here")) {
+                Connection connection = display.getConnection();
             if (connection != null) {
-                String query = "SELECT book_id, book_name, author, Publisher, Status, quantity FROM books WHERE book_id LIKE ? OR book_name LIKE ? OR author LIKE ? OR Publisher LIKE ? OR Status LIKE ? OR quantity LIKE ?";
+                String query = "SELECT book_id, ISBN, book_name, author, Publisher, Status, quantity FROM books WHERE book_id LIKE ? OR ISBN LIKE ? OR book_name LIKE ? OR author LIKE ? OR Publisher LIKE ? OR Status LIKE ? OR quantity LIKE ?";
                 PreparedStatement pstmt = connection.prepareStatement(query);
                 String likeTerm = "%" + searchTerm + "%";
                 for (int i = 1; i <= 6; i++) {
                     pstmt.setString(i, likeTerm);
                 }
                 ResultSet rs = pstmt.executeQuery();
-                
+
                 if (rs != null) {
                     table.setModel(DbUtils.resultSetToTableModel(rs));
                     rs.close();
@@ -396,13 +406,13 @@ public class Viewavab extends javax.swing.JFrame {
             } else {
                 JOptionPane.showMessageDialog(this, "Failed to establish a connection to the database.");
             }
-        } else {
-            JOptionPane.showMessageDialog(this, "Please enter a search term.");
+            } else {
+                JOptionPane.showMessageDialog(this, "Please enter a search term.");
+            }
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(this, "Error fetching search results: " + ex.getMessage());
+            ex.printStackTrace();
         }
-    } catch (SQLException ex) {
-        JOptionPane.showMessageDialog(this, "Error fetching search results: " + ex.getMessage());
-        ex.printStackTrace();
-    }
     }//GEN-LAST:event_jLabel11MouseClicked
 
     private void jLabel4MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel4MouseClicked
@@ -410,43 +420,42 @@ public class Viewavab extends javax.swing.JFrame {
     }//GEN-LAST:event_jLabel4MouseClicked
 
     private void printtableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_printtableMouseClicked
-       TableModel model = table.getModel();
-    if (model.getRowCount() == 0) {
-        JOptionPane.showMessageDialog(null, "The table is empty!");
-        return;
-    }
-    
-    
-    PrintTable us = new PrintTable();
-    us.setVisible(true);
-    this.dispose();
+       MessageFormat header = new MessageFormat("Library Management System");
+      MessageFormat footer = new MessageFormat("Page{0,number,integer}");
+      
+      try{
+          table.print(JTable.PrintMode.NORMAL, header, footer);
+      } catch (PrinterException ex) {
+            Logger.getLogger(Viewavab.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }//GEN-LAST:event_printtableMouseClicked
 
     private void printMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_printMouseClicked
     int rowIndex = table.getSelectedRow();
         
-        if(rowIndex < 0){
-            JOptionPane.showMessageDialog(null, "Please Select an item!");
-        }else{
-            TableModel model = table.getModel();
-            individualPrinting us = new individualPrinting();
-            us.id.setText(""+model.getValueAt(rowIndex, 0));
-            us.name.setText(""+model.getValueAt(rowIndex, 1));           
-            us.author.setText(""+model.getValueAt(rowIndex, 2));
-            us.quan.setText(""+model.getValueAt(rowIndex, 5));           
-            us.publisher.setText(""+model.getValueAt(rowIndex, 3));
-            us.setVisible(true);
-            
-            this.dispose();
-        }
+    if(rowIndex < 0){
+        JOptionPane.showMessageDialog(null, "Please Select an item!");
+    } else {
+        TableModel model = table.getModel();
+        individualPrinting us = new individualPrinting();
+        us.id.setText(""+model.getValueAt(rowIndex, 0));
+        us.isbn.setText(""+model.getValueAt(rowIndex, 1));
+        us.name.setText(""+model.getValueAt(rowIndex, 2));           
+        us.author.setText(""+model.getValueAt(rowIndex, 3));
+        us.publisher.setText(""+model.getValueAt(rowIndex, 4));
+        us.quan.setText(""+model.getValueAt(rowIndex, 5));           
+        us.setVisible(true);
+        
+        this.dispose();
+    }
     }//GEN-LAST:event_printMouseClicked
 
-    private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
+    private void jButton8ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton8ActionPerformed
         JOptionPane.showMessageDialog(null, "Logout Successful!");
         LoginForm dash = new LoginForm();
         dash.setVisible(true);
         this.dispose();
-    }//GEN-LAST:event_jButton6ActionPerformed
+    }//GEN-LAST:event_jButton8ActionPerformed
 
     private void jLabel12MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel12MouseClicked
         ADD loginForm = new ADD();
@@ -478,11 +487,17 @@ public class Viewavab extends javax.swing.JFrame {
         this.dispose();
     }//GEN-LAST:event_jLabel16MouseClicked
 
-    private void jLabel9MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel9MouseClicked
+    private void jLabel17MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel17MouseClicked
         archive rs = new archive();
         rs.setVisible(true);
         this.dispose();
-    }//GEN-LAST:event_jLabel9MouseClicked
+    }//GEN-LAST:event_jLabel17MouseClicked
+
+    private void jLabel5MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel5MouseClicked
+        approved rs = new approved();
+        rs.setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_jLabel5MouseClicked
 
     /**
      * @param args the command line arguments
@@ -522,6 +537,8 @@ public class Viewavab extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton6;
+    private javax.swing.JButton jButton7;
+    private javax.swing.JButton jButton8;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
@@ -530,13 +547,16 @@ public class Viewavab extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel14;
     private javax.swing.JLabel jLabel15;
     private javax.swing.JLabel jLabel16;
+    private javax.swing.JLabel jLabel17;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
-    private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel11;
+    private javax.swing.JPanel jPanel12;
+    private javax.swing.JPanel jPanel13;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel4;
     private javax.swing.JPanel jPanel5;

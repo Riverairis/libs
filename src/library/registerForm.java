@@ -57,12 +57,12 @@ public class registerForm extends javax.swing.JFrame {
         }
 
         if (emailExists) {
-            JOptionPane.showMessageDialog(null, "Email already exists! Please use a different one.");
+            JOptionPane.showMessageDialog(null, "Email already exists in user table! Please use a different one.");
             em.setText("");
         }
 
         if (usernameExists) {
-            JOptionPane.showMessageDialog(null, "Username already exists! Please choose a different one.");
+            JOptionPane.showMessageDialog(null, "Username already exists in user table! Please choose a different one.");
             us.setText("");
         }
 
@@ -74,19 +74,69 @@ public class registerForm extends javax.swing.JFrame {
     }
 }
 
+public boolean duplicate() {
+    dbConnector dbc = new dbConnector();
 
-        private boolean isValidEmail(String email) {
-            String emailRegex = "^[a-zA-Z0-9_+&*-]+(?:\\." +
-                                "[a-zA-Z0-9_+&*-]+)*@" +
-                                "(?:[a-zA-Z0-9-]+\\.)+[a-z" +
-                                "A-Z]{2,7}$";
+    try {
+        String query = "SELECT * FROM librarian WHERE u_username = ? OR u_email = ?";
+        PreparedStatement pstmt = dbc.getConnection().prepareStatement(query);
+        pstmt.setString(1, us.getText());
+        pstmt.setString(2, em.getText());
+        ResultSet resultSet = pstmt.executeQuery();
 
-            Pattern pat = Pattern.compile(emailRegex);
-            if (email == null)
-                return false;
-            return pat.matcher(email).matches();
+        boolean emailExists = false;
+        boolean usernameExists = false;
+
+        while (resultSet.next()) {
+            email = resultSet.getString("u_email");
+            uname = resultSet.getString("u_username");
+
+            if (email.equals(em.getText())) {
+                emailExists = true;
+            }
+            if (uname.equals(us.getText())) {
+                usernameExists = true;
+            }
         }
 
+        if (emailExists) {
+            JOptionPane.showMessageDialog(null, "Email already exists in admin table! Please use a different one.");
+            em.setText("");
+        }
+
+        if (usernameExists) {
+            JOptionPane.showMessageDialog(null, "Username already exists in admin table! Please choose a different one.");
+            us.setText("");
+        }
+
+        return emailExists || usernameExists;
+
+    } catch (SQLException ex) {
+        System.out.println("" + ex);
+        return false;
+    }
+}
+
+private boolean isValidEmail(String email) {
+    String emailRegex = "^[a-zA-Z0-9_+&*-]+(?:\\." +
+                        "[a-zA-Z0-9_+&*-]+)*@" +
+                        "(?:[a-zA-Z0-9-]+\\.)+[a-z" +
+                        "A-Z]{2,7}$";
+
+    Pattern pat = Pattern.compile(emailRegex);
+    if (email == null)
+        return false;
+    return pat.matcher(email).matches();
+}
+
+private boolean integer(String input) {
+    try {
+        Long.parseLong(input);
+        return true;
+    } catch (NumberFormatException e) {
+        return false;
+    }
+}
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -268,7 +318,7 @@ public class registerForm extends javax.swing.JFrame {
         jLabel15.setForeground(new java.awt.Color(204, 0, 0));
         jLabel15.setText("LIBRARY");
         jPanel2.add(jLabel15);
-        jLabel15.setBounds(190, 50, 203, 53);
+        jLabel15.setBounds(200, 50, 203, 53);
 
         getContentPane().add(jPanel2);
         jPanel2.setBounds(0, 0, 910, 560);
@@ -278,59 +328,61 @@ public class registerForm extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-      if (fn.getText().isEmpty() || ln.getText().isEmpty() || em.getText().isEmpty() || us.getText().isEmpty() || ps.getText().isEmpty()) {
-            JOptionPane.showMessageDialog(null, "All fields are required!");
-            return;
-        }
-        if (ps.getText().length() < 8) {
-            JOptionPane.showMessageDialog(null, "Password must have at least 8 characters!");
-            ps.setText("");
-            return;
-        }
-        if (!isValidEmail(em.getText())) {
-            JOptionPane.showMessageDialog(null, "Invalid email format!");
-            em.setText("");
-            return;
-        }
-        if (!integer(nums.getText())) {
+       dbConnector dbc = new dbConnector();
+    String utype = type.getSelectedItem().toString();
+    String pss = String.valueOf(ps.getPassword());
+
+    if (fn.getText().isEmpty() || ln.getText().isEmpty() || em.getText().isEmpty() ||
+        nums.getText().isEmpty() || us.getText().isEmpty() || pss.isEmpty()) {
+        JOptionPane.showMessageDialog(null, "Please fill up all fields!");
+        return;
+    }   
+    if (ps.getText().length() < 8) {
+        JOptionPane.showMessageDialog(null, "Password must have at least 8 characters!");
+        ps.setText("");
+        return;
+    }
+    if (!isValidEmail(em.getText())) {
+        JOptionPane.showMessageDialog(null, "Invalid email format! Please enter a valid email.");
+        return;
+    }
+    if (!integer(nums.getText())) {
         JOptionPane.showMessageDialog(null, "Number must be an integer!");
         nums.setText("");
         return;
-        }
-        if (duplicateCheck()) {
-            return;
-        }
+    }
 
-        try {
-            dbConnector dbc = new dbConnector();
-            String pass = passwordHasher.hashPassword(ps.getText());
+    if (duplicateCheck() || duplicate()) {
+        return;
+    }
 
-            String query = "INSERT INTO tbl(u_fname, u_lname, u_email, u_username, u_password, Number, u_type, u_image, u_status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
-            PreparedStatement pstmt = dbc.getConnection().prepareStatement(query);
-            pstmt.setString(1, fn.getText());
-            pstmt.setString(2, ln.getText());
-            pstmt.setString(3, em.getText());
-            pstmt.setString(4, us.getText());
-            pstmt.setString(5, pass);
-            pstmt.setString(6, nums.getText());
-            pstmt.setString(7, type.getSelectedItem().toString());
-            pstmt.setString(8, ""); 
-            pstmt.setString(9, "Pending");
-            int result = pstmt.executeUpdate();
-
-            if (result == 1) {
-                JOptionPane.showMessageDialog(null, "Successfully Registered!");
-            } else {
-                System.out.println("Saving Data Failed!");
-                JOptionPane.showMessageDialog(null, "Registration failed. Please try again.");
-            }
-            LoginForm loginForm = new LoginForm();
-            loginForm.setVisible(true);
-            this.dispose();
-        } catch (NoSuchAlgorithmException | SQLException ex) {
-            System.out.println("Error: " + ex);
-            JOptionPane.showMessageDialog(null, "An error occurred during registration. Please try again.");
+    try {
+        String query;
+        if (utype.equals("Admin")) {
+            query = "INSERT INTO librarian(u_fname, u_lname, u_email, u_username, u_password, Number, u_type, u_image, u_status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        } else {
+            query = "INSERT INTO tbl(u_fname, u_lname, u_email, u_username, u_password, Number, u_type, u_image, u_status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
         }
+        PreparedStatement pstmt = dbc.getConnection().prepareStatement(query);
+        pstmt.setString(1, fn.getText());
+        pstmt.setString(2, ln.getText());
+        pstmt.setString(3, em.getText());
+        pstmt.setString(4, us.getText());
+        pstmt.setString(5, passwordHasher.hashPassword(pss));
+        pstmt.setString(6, nums.getText());
+        pstmt.setString(7, utype);
+        pstmt.setString(8, ""); 
+        pstmt.setString(9, "Pending");
+        pstmt.executeUpdate();
+        
+        JOptionPane.showMessageDialog(null, "Successfully Registered!");
+        LoginForm loginForm = new LoginForm();
+        loginForm.setVisible(true);
+        this.dispose();
+    } catch (SQLException | NoSuchAlgorithmException e) {
+        e.printStackTrace();
+        JOptionPane.showMessageDialog(null, "An error occurred while registering. Please try again.");
+    }
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
@@ -338,17 +390,7 @@ public class registerForm extends javax.swing.JFrame {
         loginForm.setVisible(true);
         this.dispose();
     }//GEN-LAST:event_jButton2ActionPerformed
-    
-    private boolean integer(String input) {
-    try {
-        Long.parseLong(input);
-        return true;
-    } catch (NumberFormatException e) {
-        return false;
-    }
-}
-    
-    
+        
     /**
      * @param args the command line arguments
      */

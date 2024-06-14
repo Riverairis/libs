@@ -385,8 +385,6 @@ public void imageUpdater(String existingFilePath, String newFilePath){
     private void numsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_numsActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_numsActionPerformed
-
-    
     
     private void labelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_labelActionPerformed
         if (Action.equals("Add")) {

@@ -35,7 +35,7 @@ public class avab extends javax.swing.JFrame {
     try {
         Connection connection = display.getConnection();
         if (connection != null) {
-            ResultSet rs = connection.createStatement().executeQuery("SELECT book_id, book_name, Author FROM books");
+            ResultSet rs = connection.createStatement().executeQuery("SELECT book_id, book_name, Author, publisher FROM books");
             if (rs != null) {
                 table.setModel(DbUtils.resultSetToTableModel(rs));
                 rs.close();

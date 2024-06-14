@@ -290,8 +290,7 @@ public class viewusers extends javax.swing.JFrame {
     private void jLabel3MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel3MouseClicked
          String query = search.getText();
     String searchQuery = "SELECT * FROM tbl WHERE u_username LIKE '%" + query + "%' OR u_fname LIKE '%" + query + "%' OR u_lname LIKE '%" + query + "%'OR u_status LIKE '%" + query + "%'OR u_type LIKE '%" + query +"'";
-    
-    
+        
     if (query.matches("\\d+")) {
         searchQuery = "SELECT * FROM tbl WHERE u_id = " + query;
     }

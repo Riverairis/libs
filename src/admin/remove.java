@@ -145,7 +145,7 @@ public class remove extends javax.swing.JFrame {
             }
         });
         jPanel4.add(remove);
-        remove.setBounds(90, 470, 80, 23);
+        remove.setBounds(90, 463, 80, 30);
 
         rem.setBackground(new java.awt.Color(51, 51, 51));
         rem.setForeground(new java.awt.Color(255, 255, 255));
@@ -215,19 +215,28 @@ public class remove extends javax.swing.JFrame {
     try {
         Connection connection = display.getConnection();
         if (connection != null) {
-            
+            String checkQuery = "SELECT COUNT(*) FROM borrowings WHERE book_id = ?";
+            PreparedStatement checkPstmt = connection.prepareStatement(checkQuery);
+            checkPstmt.setString(1, bookIdToRemove);
+            ResultSet checkRs = checkPstmt.executeQuery();
+            if (checkRs.next() && checkRs.getInt(1) > 0) {
+                JOptionPane.showMessageDialog(this, "Cannot remove the book as it is currently borrowed.");
+                checkRs.close();
+                checkPstmt.close();
+                return;
+            }
+            checkRs.close();
+            checkPstmt.close();
+
             String query = "DELETE FROM books WHERE book_id = ?";
             PreparedStatement pstmt = connection.prepareStatement(query);
-           
             pstmt.setString(1, bookIdToRemove);
             
             int dialogResult = JOptionPane.showConfirmDialog(this, "Are you sure you want to remove this book?", "Confirm Removal", JOptionPane.OK_CANCEL_OPTION);
             if (dialogResult == JOptionPane.OK_OPTION) {
-                
                 int rowsDeleted = pstmt.executeUpdate();
                 if (rowsDeleted > 0) {
                     JOptionPane.showMessageDialog(this, "Book removed successfully.");
-                   
                     displayData();
                 } else {
                     JOptionPane.showMessageDialog(this, "No book found with the provided Book ID.");
@@ -280,23 +289,23 @@ public class remove extends javax.swing.JFrame {
             if (!searchTerm.isEmpty() && !searchTerm.equals("Input Here")) {
                 Connection connection = display.getConnection();
             if (connection != null) {
-                    String query = "SELECT book_id, book_name, author, Publisher, Status, quantity FROM books WHERE book_id LIKE ? OR book_name LIKE ? OR author LIKE ? OR Publisher LIKE ? OR Status LIKE ? OR quantity LIKE ?";
-                    PreparedStatement pstmt = connection.prepareStatement(query);
-                    String likeTerm = "%" + searchTerm + "%";
-            for (int i = 1; i <= 6; i++) {
+                String query = "SELECT book_id, ISBN, book_name, author, Publisher, Status, quantity FROM books WHERE book_id LIKE ? OR ISBN LIKE ? OR book_name LIKE ? OR author LIKE ? OR Publisher LIKE ? OR Status LIKE ? OR quantity LIKE ?";
+                PreparedStatement pstmt = connection.prepareStatement(query);
+                String likeTerm = "%" + searchTerm + "%";
+                for (int i = 1; i <= 6; i++) {
                     pstmt.setString(i, likeTerm);
-                    }
-                    ResultSet rs = pstmt.executeQuery();
+                }
+                ResultSet rs = pstmt.executeQuery();
 
-            if (rs != null) {
+                if (rs != null) {
                     table.setModel(DbUtils.resultSetToTableModel(rs));
                     rs.close();
-            } else {
+                } else {
                     JOptionPane.showMessageDialog(this, "No matching books found.");
-                    }
-            } else {
-                    JOptionPane.showMessageDialog(this, "Failed to establish a connection to the database.");
                 }
+            } else {
+                JOptionPane.showMessageDialog(this, "Failed to establish a connection to the database.");
+            }
             } else {
                 JOptionPane.showMessageDialog(this, "Please enter a search term.");
             }

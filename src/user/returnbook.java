@@ -11,12 +11,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 import library.LoginForm;
@@ -37,62 +31,37 @@ public class returnbook extends javax.swing.JFrame {
         displayData();
     }
     
-    public void displayData() {
+   public void displayData() {
     try {
         Session sess = Session.getInstance();
         int userID = sess.getId();
+        
         Connection connection = display.getConnection();
-        if (connection == null) {
-            JOptionPane.showMessageDialog(this, "Failed to establish a connection to the database.");
-            return;
-        }
+        if (connection != null) {
+            String query = "SELECT b.book_id, b.book_name, b.author, br.status " +
+                           "FROM books b " +
+                           "INNER JOIN borrowings br ON b.book_id = br.book_id " +
+                           "WHERE br.u_id = ? AND br.status IN ('Borrowed')";
+            PreparedStatement pstmt = connection.prepareStatement(query);
+            pstmt.setInt(1, userID);
+            ResultSet rs = pstmt.executeQuery();
 
-        String query = "SELECT book_id, book_name, author, Quantity FROM books ORDER BY book_id";
-        ResultSet rsBooks = connection.createStatement().executeQuery(query);
-
-        Map<String, String> bookStatusMap = new HashMap<>();
-        while (rsBooks.next()) {
-            String bookID = rsBooks.getString("book_id");
-            bookStatusMap.put(bookID, rsBooks.getInt("Quantity") > 0 ? "Available" : "Out of Stock");
-        }
-        rsBooks.close();
-
-        query = "SELECT book_id FROM borrowings WHERE u_id = ?";
-        PreparedStatement pstmtBorrowed = connection.prepareStatement(query);
-        pstmtBorrowed.setInt(1, userID);
-        ResultSet rsBorrowed = pstmtBorrowed.executeQuery();
-        while (rsBorrowed.next()) {
-            bookStatusMap.put(rsBorrowed.getString("book_id"), "Borrowed");
-        }
-        rsBorrowed.close();
-        pstmtBorrowed.close();
-
-        DefaultTableModel model = new DefaultTableModel(new String[]{"Book ID", "Book Name", "Author", "Status"}, 0);
-        List<String> sortedBookIDs = new ArrayList<>(bookStatusMap.keySet());
-        Collections.sort(sortedBookIDs, Comparator.comparingInt(Integer::parseInt));
-
-        PreparedStatement pstmtBookDetails = connection.prepareStatement("SELECT * FROM books WHERE book_id = ?");
-        for (String bookID : sortedBookIDs) {
-            pstmtBookDetails.setString(1, bookID);
-            ResultSet rsBookDetails = pstmtBookDetails.executeQuery();
-            if (rsBookDetails.next()) {
-                model.addRow(new Object[]{
-                    rsBookDetails.getString("book_id"),
-                    rsBookDetails.getString("book_name"),
-                    rsBookDetails.getString("author"),
-                    bookStatusMap.get(bookID)
-                });
+            if (rs != null) {
+                table.setModel(DbUtils.resultSetToTableModel(rs));
+                rs.close();
+            } else {
+                JOptionPane.showMessageDialog(this, "No data found in the database.");
             }
-            rsBookDetails.close();
+            pstmt.close();
+        } else {
+            JOptionPane.showMessageDialog(this, "Failed to establish a connection to the database.");
         }
-        pstmtBookDetails.close();
-
-        table.setModel(model);
     } catch (SQLException ex) {
         JOptionPane.showMessageDialog(this, "Error fetching data from database: " + ex.getMessage());
         ex.printStackTrace();
     }
 }
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -105,19 +74,16 @@ public class returnbook extends javax.swing.JFrame {
         jPanel3 = new javax.swing.JPanel();
         jPanel5 = new javax.swing.JPanel();
         jLabel7 = new javax.swing.JLabel();
-        jLabel8 = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
+        jLabel8 = new javax.swing.JLabel();
         label2 = new javax.swing.JLabel();
-        jPanel4 = new javax.swing.JPanel();
-        jLabel1 = new javax.swing.JLabel();
-        turn = new javax.swing.JButton();
-        ret = new javax.swing.JTextField();
         searchs = new javax.swing.JTextField();
         jLabel11 = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
         table = new javax.swing.JTable();
         jSeparator1 = new javax.swing.JSeparator();
         jLabel4 = new javax.swing.JLabel();
+        turn = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         addWindowListener(new java.awt.event.WindowAdapter() {
@@ -135,11 +101,6 @@ public class returnbook extends javax.swing.JFrame {
         jLabel7.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/male_user_50px.png"))); // NOI18N
         jPanel5.add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 10, 50, 50));
 
-        jLabel8.setFont(new java.awt.Font("Yu Gothic UI Semibold", 1, 24)); // NOI18N
-        jLabel8.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel8.setText(" Welcome to Library ");
-        jPanel5.add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 10, 850, 50));
-
         jLabel5.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
         jLabel5.setForeground(new java.awt.Color(255, 0, 0));
         jLabel5.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/icons8_Home_26px_2.png"))); // NOI18N
@@ -148,7 +109,12 @@ public class returnbook extends javax.swing.JFrame {
                 jLabel5MouseClicked(evt);
             }
         });
-        jPanel5.add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(870, 20, -1, 30));
+        jPanel5.add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(740, 20, -1, 30));
+
+        jLabel8.setFont(new java.awt.Font("Yu Gothic UI Semibold", 1, 24)); // NOI18N
+        jLabel8.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel8.setText(" Welcome to Library ");
+        jPanel5.add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 10, 670, 50));
 
         label2.setBackground(new java.awt.Color(0, 0, 0));
         label2.setFont(new java.awt.Font("Arial", 1, 24)); // NOI18N
@@ -161,34 +127,7 @@ public class returnbook extends javax.swing.JFrame {
         jPanel5.add(label2, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 0, 110, 70));
 
         jPanel3.add(jPanel5);
-        jPanel5.setBounds(0, 0, 910, 70);
-
-        jPanel4.setBackground(new java.awt.Color(51, 51, 51));
-        jPanel4.setLayout(null);
-
-        jLabel1.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
-        jLabel1.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel1.setText("Enter Book ID to Return");
-        jPanel4.add(jLabel1);
-        jLabel1.setBounds(20, 220, 170, 30);
-
-        turn.setBackground(new java.awt.Color(153, 0, 0));
-        turn.setText("Return");
-        turn.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                turnActionPerformed(evt);
-            }
-        });
-        jPanel4.add(turn);
-        turn.setBounds(80, 460, 80, 30);
-
-        ret.setBackground(new java.awt.Color(51, 51, 51));
-        ret.setForeground(new java.awt.Color(255, 255, 255));
-        jPanel4.add(ret);
-        ret.setBounds(20, 260, 210, 30);
-
-        jPanel3.add(jPanel4);
-        jPanel4.setBounds(0, 0, 250, 510);
+        jPanel5.setBounds(0, 0, 790, 70);
 
         searchs.setText("Input Here");
         searchs.setBorder(null);
@@ -198,7 +137,7 @@ public class returnbook extends javax.swing.JFrame {
             }
         });
         jPanel3.add(searchs);
-        searchs.setBounds(680, 80, 180, 30);
+        searchs.setBounds(550, 80, 180, 30);
 
         jLabel11.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/search.png"))); // NOI18N
         jLabel11.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -207,17 +146,17 @@ public class returnbook extends javax.swing.JFrame {
             }
         });
         jPanel3.add(jLabel11);
-        jLabel11.setBounds(860, 70, 50, 50);
+        jLabel11.setBounds(730, 70, 50, 50);
 
         table.setGridColor(new java.awt.Color(153, 0, 0));
         jScrollPane1.setViewportView(table);
 
         jPanel3.add(jScrollPane1);
-        jScrollPane1.setBounds(270, 120, 620, 370);
+        jScrollPane1.setBounds(20, 120, 740, 370);
 
         jSeparator1.setForeground(new java.awt.Color(0, 0, 0));
         jPanel3.add(jSeparator1);
-        jSeparator1.setBounds(680, 110, 180, 10);
+        jSeparator1.setBounds(550, 110, 180, 10);
 
         jLabel4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/refresh.png"))); // NOI18N
         jLabel4.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -226,13 +165,23 @@ public class returnbook extends javax.swing.JFrame {
             }
         });
         jPanel3.add(jLabel4);
-        jLabel4.setBounds(650, 80, 23, 40);
+        jLabel4.setBounds(520, 80, 23, 40);
+
+        turn.setBackground(new java.awt.Color(153, 0, 0));
+        turn.setText("RETURN");
+        turn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                turnActionPerformed(evt);
+            }
+        });
+        jPanel3.add(turn);
+        turn.setBounds(20, 80, 80, 30);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, 910, Short.MAX_VALUE)
+            .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, 778, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -250,56 +199,57 @@ public class returnbook extends javax.swing.JFrame {
     }//GEN-LAST:event_jLabel5MouseClicked
 
     private void turnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_turnActionPerformed
+      int selectedRow = table.getSelectedRow();
+    if (selectedRow == -1) {
+        JOptionPane.showMessageDialog(this, "Please select a book to return from the table.");
+        return;
+    }
     try {
-            String bookID = ret.getText().trim();
-            if (bookID.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Please enter a book ID.");
-                return;
-            }
+        String bookID = table.getValueAt(selectedRow, 0).toString();
 
-            Connection connection = display.getConnection();
-            if (connection == null) {
-                JOptionPane.showMessageDialog(this, "Failed to establish a connection to the database.");
-                return;
-            }
-
-            Session sess = Session.getInstance();
-            int userID = sess.getId();
-
-            PreparedStatement checkStmt = connection.prepareStatement("SELECT * FROM borrowings WHERE book_id = ? AND u_id = ?");
-            checkStmt.setString(1, bookID);
-            checkStmt.setInt(2, userID);
-            ResultSet rs = checkStmt.executeQuery();
-
-            if (rs.next() && "Borrowed".equals(rs.getString("status"))) {
-                PreparedStatement deleteStmt = connection.prepareStatement("DELETE FROM borrowings WHERE book_id = ? AND u_id = ?");
-                deleteStmt.setString(1, bookID);
-                deleteStmt.setInt(2, userID);
-
-                PreparedStatement updateStmt = connection.prepareStatement("UPDATE books SET Quantity = Quantity + 1 WHERE book_id = ?");
-                updateStmt.setString(1, bookID);
-
-                // Execute the statements
-                if (deleteStmt.executeUpdate() > 0 && updateStmt.executeUpdate() > 0) {
-                    JOptionPane.showMessageDialog(this, "Book returned successfully.");
-                    displayData();
-                    ret.setText("");
-                } else {
-                    JOptionPane.showMessageDialog(this, "Failed to return book.");
-                }
-
-                deleteStmt.close();
-                updateStmt.close();
-            } else {
-                JOptionPane.showMessageDialog(this, "No borrowed record found for the specified book ID and user.");
-            }
-
-            rs.close();
-            checkStmt.close();
-        } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(this, "Error returning book: " + ex.getMessage());
-            ex.printStackTrace();
+        Connection connection = display.getConnection();
+        if (connection == null) {
+            JOptionPane.showMessageDialog(this, "Failed to establish a connection to the database.");
+            return;
         }
+
+        Session sess = Session.getInstance();
+        int userID = sess.getId();
+
+        PreparedStatement checkStmt = connection.prepareStatement("SELECT * FROM borrowings WHERE book_id = ? AND u_id = ?");
+        checkStmt.setString(1, bookID);
+        checkStmt.setInt(2, userID);
+        ResultSet rs = checkStmt.executeQuery();
+
+        if (rs.next() && "Borrowed".equals(rs.getString("status"))) {
+            PreparedStatement updateStatusStmt = connection.prepareStatement("UPDATE borrowings SET status = 'Returned' WHERE book_id = ? AND u_id = ?");
+            updateStatusStmt.setString(1, bookID);
+            updateStatusStmt.setInt(2, userID);
+
+            PreparedStatement updateBookStmt = connection.prepareStatement("UPDATE books SET quantity = quantity + 1 WHERE book_id = ?");
+            updateBookStmt.setString(1, bookID);
+
+            if (updateStatusStmt.executeUpdate() > 0 && updateBookStmt.executeUpdate() > 0) {
+                JOptionPane.showMessageDialog(this, "Book returned successfully.");
+
+                DefaultTableModel model = (DefaultTableModel) table.getModel();
+                model.removeRow(selectedRow);
+            } else {
+                JOptionPane.showMessageDialog(this, "Failed to return book.");
+            }
+
+            updateStatusStmt.close();
+            updateBookStmt.close();
+        } else {
+            JOptionPane.showMessageDialog(this, "No borrowed record found for the specified book ID and user.");
+        }
+
+        rs.close();
+        checkStmt.close();
+    } catch (SQLException ex) {
+        JOptionPane.showMessageDialog(this, "Error returning book: " + ex.getMessage());
+        ex.printStackTrace();
+    }
     }//GEN-LAST:event_turnActionPerformed
 
     private void label2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_label2MouseClicked
@@ -325,35 +275,7 @@ public class returnbook extends javax.swing.JFrame {
     }//GEN-LAST:event_searchsMouseClicked
 
     private void jLabel11MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel11MouseClicked
-        try {
-            String searchTerm = searchs.getText().trim();
-            if (!searchTerm.isEmpty() && !searchTerm.equals("Input Here")) {
-                Connection connection = display.getConnection();
-                if (connection != null) {
-                    String query = "SELECT book_id, book_name, author, Publisher, Status, quantity FROM books WHERE book_id LIKE ? OR book_name LIKE ? OR author LIKE ? OR Publisher LIKE ? OR Status LIKE ? OR quantity LIKE ?";
-                    PreparedStatement pstmt = connection.prepareStatement(query);
-                    String likeTerm = "%" + searchTerm + "%";
-                    for (int i = 1; i <= 6; i++) {
-                        pstmt.setString(i, likeTerm);
-                    }
-                    ResultSet rs = pstmt.executeQuery();
-
-                    if (rs != null) {
-                        table.setModel(DbUtils.resultSetToTableModel(rs));
-                        rs.close();
-                    } else {
-                        JOptionPane.showMessageDialog(this, "No matching books found.");
-                    }
-                } else {
-                    JOptionPane.showMessageDialog(this, "Failed to establish a connection to the database.");
-                }
-            } else {
-                JOptionPane.showMessageDialog(this, "Please enter a search term.");
-            }
-        } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(this, "Error fetching search results: " + ex.getMessage());
-            ex.printStackTrace();
-        }
+        
     }//GEN-LAST:event_jLabel11MouseClicked
 
     private void jLabel4MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel4MouseClicked
@@ -403,19 +325,16 @@ public class returnbook extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
     private javax.swing.JPanel jPanel3;
-    private javax.swing.JPanel jPanel4;
     private javax.swing.JPanel jPanel5;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JSeparator jSeparator1;
     public javax.swing.JLabel label2;
-    private javax.swing.JTextField ret;
     private javax.swing.JTextField searchs;
     private javax.swing.JTable table;
     private javax.swing.JButton turn;

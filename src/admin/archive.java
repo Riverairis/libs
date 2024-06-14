@@ -177,13 +177,23 @@ public class archive extends javax.swing.JFrame {
 
     private void deleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteActionPerformed
         int row = table.getSelectedRow();
-    if (row >= 0) {
+        if (row >= 0) {
         int id = (int) table.getValueAt(row, 0);
-        int confirm = JOptionPane.showConfirmDialog(this, "Are you sure you want to delete this record permanently?", "Delete", JOptionPane.YES_NO_OPTION);
-        if (confirm == JOptionPane.YES_OPTION) {
-            try {
-                dbConnector dbc = new dbConnector();
-                
+        
+        try {
+            dbConnector dbc = new dbConnector();
+            String checkBorrowingsQuery = "SELECT COUNT(*) AS count FROM borrowings WHERE u_id = " + id;
+            ResultSet rs = dbc.getData(checkBorrowingsQuery);
+            
+            if (rs.next() && rs.getInt("count") > 0) {
+                JOptionPane.showMessageDialog(this, "Record cannot be deleted as the user has borrowed books.");
+                rs.close();
+                return;
+            }
+            rs.close();
+            
+            int confirm = JOptionPane.showConfirmDialog(this, "Are you sure you want to delete this record permanently?", "Delete", JOptionPane.YES_NO_OPTION);
+            if (confirm == JOptionPane.YES_OPTION) {
                 String deleteBorrowingsQuery = "DELETE FROM borrowings WHERE u_id = " + id;
                 dbc.updateData(deleteBorrowingsQuery);
                 
@@ -192,13 +202,14 @@ public class archive extends javax.swing.JFrame {
                 
                 JOptionPane.showMessageDialog(this, "Record deleted successfully.");
                 displayData();
-            } catch (SQLException ex) {
-                System.out.println("Error deleting record: " + ex.getMessage());
             }
+        } catch (SQLException ex) {
+            System.out.println("Error deleting record: " + ex.getMessage());
         }
     } else {
         JOptionPane.showMessageDialog(this, "Please select a record to delete.");
     }
+
     }//GEN-LAST:event_deleteActionPerformed
 
     private void jLabel2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel2MouseClicked
